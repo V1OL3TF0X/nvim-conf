@@ -41,4 +41,6 @@ return require('packer').startup(function(use)
  }
  use 'HiPhish/rainbow-delimiters.nvim'
  use 'nikvdp/neomux'
+ use 'windwp/nvim-ts-autotag'
+ use 'mattn/emmet-vim'
 end)
