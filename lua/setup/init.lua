@@ -17,3 +17,5 @@ autocmd('TextYankPost', {
         })
     end,
 })
+
+vim.cmd [[ autocmd BufRead,BufNewFile *.askama set filetype=htmldjango]]

@@ -9,11 +9,15 @@ vim.keymap.set('n', '<C-l>', vim.cmd.bnext)
 
 -- clipboard integration
 vim.keymap.set('v', '<leader>p', '"_dP')
+vim.keymap.set('v', '<leader>C', '"_d"+P')
 vim.keymap.set({ 'v', 'n' }, '<leader>d', '"_d')
-vim.keymap.set({ 'n', 'v' }, '<leader>y', '"+y')
+vim.keymap.set({ 'v', 'n' }, '<leader>c', '"_c')
+vim.keymap.set({ 'v', 'n' }, '<leader>y', '"+y')
+vim.keymap.set('n', '<leader>p', '"+p')
+vim.keymap.set('n', '<leader>P', '"+P')
 vim.keymap.set('n', '<leader>Y', 'gg"+yG')
 
--- moving around 
+-- moving around
 vim.keymap.set('v', 'J', ":m '>+1<CR>gv=gv")
 vim.keymap.set('v', 'K', ":m '<-2<CR>gv=gv")
 vim.keymap.set('n', 'J', 'mzJ`z')

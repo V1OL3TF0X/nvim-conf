@@ -1,4 +1,6 @@
-vim.opt.guicursor = '' 
+vim.opt.guicursor = ''
+--emmet setup
+vim.g.user_emmet_leader_key = '<C-e>'
 
 -- encoding and stupff
 vim.opt.encoding = 'utf-8'
@@ -14,7 +16,7 @@ vim.opt.wrap = false
 -- backup and undotree
 vim.opt.swapfile = false
 vim.opt.backup = false
-vim.opt.undodir = 'C:\\Users\\mateusz.adamiec\\AppData\\\\Local\\\\nvim-data\\\\undodir'
+vim.opt.undodir = vim.fn.expand '~/AppData/Local/nvim-data/undodir'
 vim.opt.undofile = true
 
 -- search
@@ -28,7 +30,7 @@ vim.opt.shiftwidth = 4
 vim.opt.expandtab = true
 vim.opt.smartindent = true
 
--- drawing 
+-- drawing
 vim.opt.scrolloff = 12
 vim.opt.signcolumn = 'yes'
 vim.opt.cc = '80'
@@ -55,7 +57,7 @@ vim.g.airline_powerline_fonts = 1
 vim.cmd('syntax on')
 
 -- theeme opts
-vim.g.airline_extensions = {'hunks', 'branch', 'tabline'}
+vim.g.airline_extensions = { 'hunks', 'branch', 'tabline' }
 vim.g['airline#extensions#tabline#enabled'] = 1
 vim.g['airline#extensions#branch#enabled'] = 1
 vim.g['airline#extensions#hunks#enabled'] = 1
