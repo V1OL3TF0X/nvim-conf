@@ -1,10 +1,5 @@
 ;;; This query includes React support as well.
 
-;; String interpolation inside template strings
-(template_substitution
-  "${" @delimiter
-  "}"  @delimiter @sentinel) @container
-
 (object
   "{" @delimiter
   "}" @delimiter @sentinel) @container

@@ -1,4 +1,66 @@
-; inherits: typescript
+(object
+  "{" @delimiter
+  "}" @delimiter @sentinel) @container
+
+(statement_block
+  "{" @delimiter
+  "}" @delimiter @sentinel) @container
+
+(class_body
+  "{" @delimiter
+  "}" @delimiter @sentinel) @container
+
+(switch_body
+  "{" @delimiter
+  "}" @delimiter @sentinel) @container
+
+(arguments
+  "(" @delimiter
+  ")" @delimiter @sentinel) @container
+
+(formal_parameters
+  "(" @delimiter
+  ")" @delimiter @sentinel) @container
+
+(parenthesized_expression
+  "(" @delimiter
+  ")" @delimiter @sentinel) @container
+
+(subscript_expression
+  "[" @delimiter
+  "]" @delimiter @sentinel) @container
+
+(named_imports
+  "{" @delimiter
+  "}" @delimiter @sentinel) @container
+
+(export_clause
+  "{" @delimiter
+  "}" @delimiter @sentinel) @container
+
+(object_pattern
+  "{" @delimiter
+  "}" @delimiter @sentinel) @container
+
+(array
+  "[" @delimiter
+  "]" @delimiter @sentinel) @container
+
+(type_arguments
+  "<" @delimiter
+  ">" @delimiter @sentinel) @container
+
+(type_parameters
+  "<" @delimiter
+  ">" @delimiter @sentinel) @container
+
+(lookup_type
+  "[" @delimiter
+  "]" @delimiter @sentinel) @container
+
+(object_type
+  "{" @delimiter
+  "}" @delimiter @sentinel) @container
 
 (jsx_element
   open_tag: (jsx_opening_element

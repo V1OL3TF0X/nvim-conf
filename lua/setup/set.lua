@@ -16,7 +16,7 @@ vim.opt.wrap = false
 -- backup and undotree
 vim.opt.swapfile = false
 vim.opt.backup = false
-vim.opt.undodir = vim.fn.expand '~/AppData/Local/nvim-data/undodir'
+vim.opt.undodir = string.format("%s-data\\undodoir", vim.fn.stdpath 'config')
 vim.opt.undofile = true
 
 -- search
@@ -57,7 +57,7 @@ vim.g.airline_powerline_fonts = 1
 vim.cmd('syntax on')
 
 -- theeme opts
-vim.g.airline_extensions = { 'hunks', 'branch', 'tabline' }
+vim.g.airline_extensions = { 'hunks', 'branch' }
 vim.g['airline#extensions#tabline#enabled'] = 1
 vim.g['airline#extensions#branch#enabled'] = 1
 vim.g['airline#extensions#hunks#enabled'] = 1

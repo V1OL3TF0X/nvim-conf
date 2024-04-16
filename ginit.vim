@@ -1,1 +1,1 @@
-:GuiFont! FiraCode Nerd Font Mono
+Guifont! FiraCode Nerd Font Mono:h12
