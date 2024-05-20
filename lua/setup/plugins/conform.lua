@@ -1,6 +1,19 @@
+local slow_format_filetypes = {}
 return {
     'stevearc/conform.nvim',
-    lazy = false,
+    event = { "BufWritePre" },
+    cmd = { "ConformInfo" },
+    keys = {
+        {
+            -- Customize or remove this keymap to your liking
+            "<leader>f",
+            function()
+                require("conform").format({ async = true, lsp_fallback = true })
+            end,
+            mode = "",
+            desc = "Format buffer",
+        },
+    },
     opts = {
         quiet = false,
         formatters_by_ft = {
@@ -11,6 +24,7 @@ return {
             json = { 'prettier' },
             css = { 'prettier' },
             scss = { 'prettier' },
+            astro = { 'prettier' },
             html = { 'prettier' },
             djangohtml = { 'prettier' },
         },
@@ -20,15 +34,29 @@ return {
             if bufname:match('/node_modules/') then
                 return
             end
+            if slow_format_filetypes[vim.bo[bufnr].filetype] then
+                return
+            end
+            local function on_format(err)
+                if err and err:match("timeout$") then
+                    slow_format_filetypes[vim.bo[bufnr].filetype] = true
+                end
+            end
 
-            return { timeout_ms = 500, lsp_fallback = true, async = true }
+            return { timeout_ms = 200, lsp_fallback = true }, on_format
+        end,
+        format_after_save = function(bufnr)
+            if not slow_format_filetypes[vim.bo[bufnr].filetype] then
+                return
+            end
+            return { lsp_fallback = true }
         end,
     },
     config = function(_, opts)
         require 'conform'.setup(opts)
         -- Customize prettier args
         require('conform.formatters.prettier').args = function(self, ctx)
-            local prettier_roots = { '.prettierrc', '.prettierrc.json', 'prettier.config.js' }
+            local prettier_roots = { '.prettierrc', '.prettierrc.json', 'prettier.config.js', '.prettierrc.toml' }
             local args = { '--stdin-filepath', '$FILENAME' }
 
             local localPrettierConfig = vim.fs.find(prettier_roots, {

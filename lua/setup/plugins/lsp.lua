@@ -63,6 +63,7 @@ return {
 
         lsp.setup()
         require('mason').setup {}
+        local lspconf = require 'lspconfig'
         require('mason-lspconfig').setup {
             -- Replace the language servers listed here
             -- with the ones you want to install
@@ -71,10 +72,10 @@ return {
                 lsp.default_setup,
                 lua_ls = function()
                     local lua_opts = lsp.nvim_lua_ls()
-                    require('lspconfig').lua_ls.setup(lua_opts)
+                    lspconf.lua_ls.setup(lua_opts)
                 end,
                 rust_analyzer = function()
-                    require('lspconfig').rust_analyzer.setup {
+                    lspconf.rust_analyzer.setup {
                         settings = {
                             ['rust-analyzer'] = {
                                 check = {
@@ -84,6 +85,13 @@ return {
                         }
                     }
                 end,
+                tailwindcss = function()
+                    lspconf.tailwindcss.setup {
+                        on_attach = function(client, bufnr)
+                            require 'tailwindcss-colors'.buf_attach(bufnr)
+                        end
+                    }
+                end
             }
         }
         vim.diagnostic.config {

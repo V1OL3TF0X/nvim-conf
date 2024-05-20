@@ -5,6 +5,7 @@ return {
         'vim-airline/vim-airline',
         'vim-airline/vim-airline-themes',
         'lewis6991/gitsigns.nvim',
+        'tpope/vim-fugitive'
     },
     lazy = false,
     config = function()

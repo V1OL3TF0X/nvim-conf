@@ -1,5 +1,6 @@
 return {
     'HiPhish/rainbow-delimiters.nvim',
+    dependencies = { "lukas-reineke/indent-blankline.nvim" },
     lazy = false,
     config = function()
         -- This module contains a number of default definitions
@@ -23,10 +24,9 @@ return {
             vim.api.nvim_set_hl(0, 'RainbowCyan', { fg = '#56B6C2' })
         end)
 
-        require 'ibl'.setup { scope = { highlight = highlight } }
+        require 'ibl'.setup { scope = { highlight = highlight, char = "▏" } }
 
-        ---@type rainbow_delimiters.config
-        vim.g.rainbow_delimiters = {
+        require 'rainbow-delimiters.setup'.setup {
             strategy = {
                 [''] = rainbow_delimiters.strategy['global'],
             },
@@ -37,6 +37,7 @@ return {
                 vue = 'rainbow-delimiters-brackets-only',
                 javascript = 'rainbow-delimiters-brackets-only',
                 html = 'rainbow-brackets-only',
+                astro = 'rainbow-brackets-only',
             },
             priority = {
                 [''] = 110,
