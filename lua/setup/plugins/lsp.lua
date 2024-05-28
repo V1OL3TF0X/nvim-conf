@@ -15,6 +15,15 @@ return {
         { 'L3MON4D3/LuaSnip' },
     },
     config = function()
+        local parser_config = require 'nvim-treesitter.parsers'.get_parser_configs()
+        parser_config.gotmpl = {
+            install_info = {
+                url = "https://github.com/ngalaiko/tree-sitter-go-template",
+                files = { "src/parser.c" }
+            },
+            filetype = "gotmpl",
+            used_by = { "gohtmltmpl", "gotexttmpl", "gotmpl" }
+        }
         local lsp = require("lsp-zero")
 
         lsp.preset("recommended")
@@ -91,7 +100,12 @@ return {
                             require 'tailwindcss-colors'.buf_attach(bufnr)
                         end
                     }
-                end
+                end,
+                htmx = function()
+                    lspconf.htmx.setup {
+                        filetypes = { 'html', 'djangohtml', 'astro', 'templ', 'askama' }
+                    }
+                end,
             }
         }
         vim.diagnostic.config {

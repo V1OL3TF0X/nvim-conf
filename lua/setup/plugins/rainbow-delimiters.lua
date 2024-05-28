@@ -37,6 +37,7 @@ return {
                 vue = 'rainbow-delimiters-brackets-only',
                 javascript = 'rainbow-delimiters-brackets-only',
                 html = 'rainbow-brackets-only',
+                gotmpl = 'rainbow-brackets-only',
                 astro = 'rainbow-brackets-only',
             },
             priority = {

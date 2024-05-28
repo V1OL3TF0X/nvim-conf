@@ -33,3 +33,4 @@ autocmd('TextYankPost', {
 })
 
 vim.cmd [[ autocmd BufRead,BufNewFile *.askama set filetype=htmldjango]]
+vim.cmd [[ autocmd BufRead,BufNewFile *.html if search('{{.\+}}', 'nw') | setlocal filetype=gotmpl | endif ]]
