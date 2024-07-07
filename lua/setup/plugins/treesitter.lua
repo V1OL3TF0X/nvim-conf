@@ -3,7 +3,7 @@ return {
     lazy = false,
     build = ":TSUpdate",
     dependencies = {
-        { 'windwp/nvim-ts-autotag', lazy = false, },
+        { 'windwp/nvim-ts-autotag', lazy = false, opts = { enable_rename = true } },
     },
     opts = {
         -- A list of parser names, or "all" (the five listed parsers should always be installed)

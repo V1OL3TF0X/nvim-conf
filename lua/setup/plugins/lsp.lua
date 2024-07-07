@@ -1,3 +1,5 @@
+local thisFilePath = (...):match("(.-)[^%.]+$")
+
 return {
     'VonHeikemen/lsp-zero.nvim',
     branch = 'v3.x',
@@ -73,40 +75,25 @@ return {
         lsp.setup()
         require('mason').setup {}
         local lspconf = require 'lspconfig'
+        local standard_handlers = {
+            lsp.default_setup,
+            lua_ls = function()
+                local lua_opts = lsp.nvim_lua_ls()
+                lspconf.lua_ls.setup(lua_opts)
+            end,
+        }
+        local handlers = vim.iter({ 'htmx', 'tailwindcss', 'intelephense', 'rust_analyzer' }):fold(standard_handlers,
+            function(table, item)
+                table[item] = function()
+                    lspconf[item].setup(require(thisFilePath .. 'lsp_configs.' .. item))
+                end
+                return table
+            end)
         require('mason-lspconfig').setup {
             -- Replace the language servers listed here
             -- with the ones you want to install
             ensure_installed = { 'tsserver', 'rust_analyzer', 'lua_ls', 'volar', 'html', 'htmx', 'gopls', 'graphql', 'lua_ls', 'powershell_es' },
-            handlers = {
-                lsp.default_setup,
-                lua_ls = function()
-                    local lua_opts = lsp.nvim_lua_ls()
-                    lspconf.lua_ls.setup(lua_opts)
-                end,
-                rust_analyzer = function()
-                    lspconf.rust_analyzer.setup {
-                        settings = {
-                            ['rust-analyzer'] = {
-                                check = {
-                                    command = 'clippy',
-                                }
-                            }
-                        }
-                    }
-                end,
-                tailwindcss = function()
-                    lspconf.tailwindcss.setup {
-                        on_attach = function(client, bufnr)
-                            require 'tailwindcss-colors'.buf_attach(bufnr)
-                        end
-                    }
-                end,
-                htmx = function()
-                    lspconf.htmx.setup {
-                        filetypes = { 'html', 'djangohtml', 'astro', 'templ', 'askama' }
-                    }
-                end,
-            }
+            handlers = handlers
         }
         vim.diagnostic.config {
             virtual_text = true
