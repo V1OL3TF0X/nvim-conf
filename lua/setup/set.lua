@@ -5,7 +5,6 @@ vim.g.user_emmet_leader_key = '<C-e>'
 -- encoding and stupff
 vim.opt.encoding = 'utf-8'
 vim.opt.fileencoding = 'utf-8'
-vim.opt.termencoding = 'utf-8'
 
 --number settings
 vim.opt.number = true
