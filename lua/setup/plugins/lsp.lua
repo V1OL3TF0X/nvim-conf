@@ -1,4 +1,4 @@
-local thisFilePath = (...):match("(.-)[^%.]+$")
+local thisFilePath = (... or 'setup.plugins.lua'):match("(.-)[^%.]+$")
 
 return {
     'VonHeikemen/lsp-zero.nvim',
@@ -81,6 +81,9 @@ return {
                 local lua_opts = lsp.nvim_lua_ls()
                 lspconf.lua_ls.setup(lua_opts)
             end,
+            angularls = function()
+                lspconf.angularls.setup {}
+            end
         }
         local handlers = vim.iter({ 'htmx', 'tailwindcss', 'intelephense', 'rust_analyzer' }):fold(standard_handlers,
             function(table, item)

@@ -26,6 +26,7 @@ return {
             scss = { 'prettier' },
             astro = { 'prettier' },
             html = { 'prettier' },
+            php = { 'prettier' },
             djangohtml = { 'prettier' },
         },
         format_on_save = function(bufnr)
