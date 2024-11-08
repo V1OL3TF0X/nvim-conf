@@ -1,32 +1,3 @@
-local icons = {
-  locker = "", -- #f023
-  page = "☰", -- 2630
-  line_number = "", -- e0a1
-  connected = "", -- f817
-  dos = "", -- e70f
-  unix = "", -- f17c
-  mac = "", -- f179
-  vertical_bar = "┃",
-  vertical_bar_thin = "│",
-  left = "",
-  right = "",
-  block = "█",
-  left_filled = "",
-  right_filled = "",
-  slant_left = "",
-  slant_left_thin = "",
-  slant_right = "",
-  slant_right_thin = "",
-  slant_left_2 = "",
-  slant_left_2_thin = "",
-  slant_right_2 = "",
-  slant_right_2_thin = "",
-  left_rounded = "",
-  left_rounded_thin = "",
-  right_rounded = "",
-  right_rounded_thin = "",
-  circle = "●"
-}
 local vi_mode_text = {
   n = "N",
   i = "I",
@@ -49,24 +20,13 @@ local vi_mode_text = {
   t = "I"
 }
 
-local function file_osinfo()
-  local os = vim.uv.os_uname().sysname:upper()
-  local icon
-  if os == 'LINUX' then
-    icon = icons.unix
-  elseif os == 'DARWIN' then
-    icon = icons.mac
-  elseif os == 'WINDOWS_NT' then
-    icon = icons.dos
-  end
-  return string.format("%s %s", icon, os)
-end
 
 local function setup_comp(feline)
   local colors = require 'onedark.colors'
   local lsp = require 'feline.providers.lsp'
   local vi_mode_utils = require 'feline.providers.vi_mode'
   local custom_providers = require 'setup.plugins.feline.providers'
+  local icons = custom_providers.icons
   local diagnostic_bg = colors.bg1
   local git_bg = colors.grey
   local file_name_bg = colors.bg0
@@ -266,7 +226,7 @@ local function setup_comp(feline)
         },
         {
           short_provider = '',
-          provider = file_osinfo,
+          provider = custom_providers.file_osinfo,
           left_sep = { str = sep_wide, hl = { bg = diagnostic_bg, fg = "bg" }, always_visible = true, },
           hl = {
             fg = colors.purple,
