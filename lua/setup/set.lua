@@ -23,9 +23,9 @@ vim.opt.hlsearch = false
 vim.opt.incsearch = true
 
 -- tab settings
-vim.opt.tabstop = 4
-vim.opt.softtabstop = 4
-vim.opt.shiftwidth = 4
+vim.opt.tabstop = 2
+vim.opt.softtabstop = 2
+vim.opt.shiftwidth = 2
 vim.opt.expandtab = true
 vim.opt.smartindent = true
 
@@ -46,10 +46,5 @@ vim.g.onedark_terminal_italics = 1
 vim.g.airline_powerline_fonts = 1
 vim.cmd('syntax on')
 
--- theeme opts
-vim.g.airline_extensions = { 'hunks', 'branch' }
-vim.g['airline#extensions#tabline#enabled'] = 1
-vim.g['airline#extensions#branch#enabled'] = 1
-vim.g['airline#extensions#hunks#enabled'] = 1
 
 vim.g.mapleader = " "
