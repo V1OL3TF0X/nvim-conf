@@ -14,6 +14,7 @@ return {
   config = function()
     local telescope = require 'telescope'
     local builtin = require('telescope.builtin')
+    local actions = require('telescope.actions')
     local lga_parser = require 'telescope-live-grep-args.prompt_parser'
     vim.keymap.set('n', '<leader>pf', builtin.find_files, {})
     vim.keymap.set('n', '<C-p>', builtin.git_files, {})
@@ -35,5 +36,14 @@ return {
     end)
     telescope.load_extension("live_grep_args")
     telescope.load_extension("fzf")
+    telescope.setup {
+      defaults = {
+        mappings = {
+          i = {
+            ['<D-q>'] = actions.send_selected_to_qflist + actions.open_qflist
+          }
+        },
+      }
+    }
   end,
 };
