@@ -32,4 +32,7 @@ return {
         }
         require 'onedark'.load()
     end,
+        PackageInfoUpToDateVersion = { fg = '$green' },
+        PackageInfoOutdatedVersion = { fg = '$orange' },
+        PackageInfoInErrorVersion = { fg = '$red' },
 };
