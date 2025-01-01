@@ -12,7 +12,6 @@ return {
     end
     for i = 1, 4, 1 do
       local keymap = string.format(fmt, i);
-      print(keymap);
       vim.keymap.set(
         'n',
         keymap,

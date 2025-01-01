@@ -5,16 +5,14 @@ return {
   { 'windwp/nvim-ts-autotag',              lazy = false },
   {
     "yochem/jq-playground.nvim",
-    config = function()
-      require 'jq-playground'.setup {
+    opts = function(_, opts)
+      vim.keymap.set('n', '<leader>jq', vim.cmd.JqPlayground);
+      vim.keymap.set('i', '<C-E>', "<Plug>(JqPlaygroundRunQuery)")
+      return {
         query_window = {
           height = 0.2,
         },
-        query_keymaps = {
-          { "i", "<C-E>" },
-        },
       };
-      vim.keymap.set('n', '<leader>jq', vim.cmd.JqPlayground);
     end,
     lazy = false
   },
