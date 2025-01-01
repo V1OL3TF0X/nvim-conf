@@ -86,7 +86,7 @@ return {
         lspconf.angularls.setup {}
       end
     }
-    local handlers = vim.iter({ 'htmx', 'tailwindcss', 'intelephense', 'rust_analyzer' }):fold(standard_handlers,
+    local handlers = vim.iter({ 'htmx', 'tailwindcss', 'intelephense', 'rust_analyzer', 'eslint' }):fold(standard_handlers,
       function(table, item)
         table[item] = function()
           lspconf[item].setup(require(thisFilePath .. 'lsp_configs.' .. item))
@@ -96,7 +96,7 @@ return {
     require('mason-lspconfig').setup {
       -- Replace the language servers listed here
       -- with the ones you want to install
-      ensure_installed = { 'ts_ls', 'rust_analyzer', 'lua_ls', 'volar', 'html', 'htmx', 'gopls', 'graphql', 'powershell_es', 'tailwindcss', 'jqls' },
+      ensure_installed = { 'ts_ls', 'rust_analyzer', 'lua_ls', 'volar', 'html', 'htmx', 'gopls', 'graphql', 'powershell_es', 'tailwindcss', 'jqls', 'eslint' },
       handlers = handlers
     }
     vim.diagnostic.config {
