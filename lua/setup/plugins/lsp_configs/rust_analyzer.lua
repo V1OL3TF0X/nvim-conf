@@ -1,9 +1,10 @@
 return {
-    settings = {
-        ['rust-analyzer'] = {
-            check = {
-                command = 'clippy',
-            }
-        }
+  on_attach = require 'virtualtypes'.on_attach,
+  settings = {
+    ['rust-analyzer'] = {
+      check = {
+        command = 'clippy',
+      }
     }
+  }
 }

@@ -1,13 +1,8 @@
 return {
     "rcarriga/nvim-notify",
-    lazy = true,
+    lazy = false,
     init = function()
-        vim.notify = function(...)
-            if not require("lazy.core.config").plugins["nvim-notify"]._.loaded then
-                require("lazy").load { "nvim-notify" }
-            end
-            require "notify"(...)
-        end
+        vim.notify = require("notify")
     end,
     config = function()
         require("notify").setup {

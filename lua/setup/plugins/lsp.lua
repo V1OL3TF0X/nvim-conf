@@ -5,11 +5,13 @@ return {
   branch = 'v3.x',
   lazy = false,
   dependencies = {
+    { 'jubnzv/virtual-types.nvim' },
     --- Uncomment the two plugins below if you want to manage the language servers from neovim
     { 'williamboman/mason.nvim' },
     { 'williamboman/mason-lspconfig.nvim' },
 
     -- LSP Support
+    { 'b0o/schemastore.nvim' },
     { 'neovim/nvim-lspconfig' },
     -- Autocompletion
     { 'hrsh7th/nvim-cmp' },
@@ -84,9 +86,24 @@ return {
       end,
       angularls = function()
         lspconf.angularls.setup {}
-      end
+      end,
+      ts_ls = function()
+        lspconf.ts_ls.setup { on_attach = require 'virtualtypes'.on_attach }
+      end,
+      jsonls = function()
+        lspconf.jsonls.setup {
+          settings = {
+            json = {
+              schemas = require('schemastore').json.schemas(),
+              validate = { enable = true },
+            },
+          },
+        }
+      end,
+
     }
-    local handlers = vim.iter({ 'htmx', 'tailwindcss', 'intelephense', 'rust_analyzer', 'eslint' }):fold(standard_handlers,
+    local handlers = vim.iter({ 'htmx', 'tailwindcss', 'intelephense', 'rust_analyzer', 'eslint' }):fold(
+      standard_handlers,
       function(table, item)
         table[item] = function()
           lspconf[item].setup(require(thisFilePath .. 'lsp_configs.' .. item))
@@ -96,7 +113,7 @@ return {
     require('mason-lspconfig').setup {
       -- Replace the language servers listed here
       -- with the ones you want to install
-      ensure_installed = { 'ts_ls', 'rust_analyzer', 'lua_ls', 'volar', 'html', 'htmx', 'gopls', 'graphql', 'powershell_es', 'tailwindcss', 'jqls', 'eslint' },
+      ensure_installed = { 'ts_ls', 'rust_analyzer', 'lua_ls', 'volar', 'html', 'htmx', 'gopls', 'graphql', 'powershell_es', 'tailwindcss', 'jqls', 'eslint', 'jsonls' },
       handlers = handlers
     }
     vim.diagnostic.config {

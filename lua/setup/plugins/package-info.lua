@@ -1,5 +1,8 @@
 return {
-  dir = "~/sandbox/package-info.nvim",
+  "vuki656/package-info.nvim",
+  --dir = "~/sandbox/package-info.nvim",
+  --name = V1OL3TF0X
+  --email = mattex15243@gmail.com
   dependencies = {
     "MunifTanjim/nui.nvim",
     "navarasu/onedark.nvim",
