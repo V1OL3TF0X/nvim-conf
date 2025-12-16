@@ -45,6 +45,8 @@ vim.g.have_nerd_font = true
 vim.g.onedark_terminal_italics = 1
 vim.g.airline_powerline_fonts = 1
 vim.cmd('syntax on')
-
+--undercurl
+vim.cmd([[let &t_Cs = "\e[4:3m"]])
+vim.cmd([[let &t_Ce = "\e[4:0m"]])
 
 vim.g.mapleader = " "

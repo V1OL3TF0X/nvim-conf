@@ -5,6 +5,20 @@ return {
   { 'windwp/nvim-ts-autotag',              lazy = false },
   { 'jubnzv/virtual-types.nvim',           lazy = false },
   {
+    'kamykn/spelunker.vim',
+    dependencies = { 'kamykn/popup-menu.nvim' },
+    lazy = false
+  },
+  {
+    'dmmulroy/tsc.nvim',
+    dependencies = { "rcarriga/nvim-notify" },
+    lazy = false,
+    opts = function()
+      vim.keymap.set('n', '<leader>tc', ':TSC');
+      return { run_as_monorepo = true };
+    end
+  },
+  {
     "yochem/jq-playground.nvim",
     opts = function(_, opts)
       vim.keymap.set('n', '<leader>jq', vim.cmd.JqPlayground);

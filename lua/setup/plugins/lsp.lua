@@ -100,7 +100,6 @@ return {
           },
         }
       end,
-
     }
     local handlers = vim.iter({ 'htmx', 'tailwindcss', 'intelephense', 'rust_analyzer', 'eslint' }):fold(
       standard_handlers,

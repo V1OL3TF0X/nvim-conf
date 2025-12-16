@@ -6,6 +6,7 @@ return {
   dependencies = {
     "MunifTanjim/nui.nvim",
     "navarasu/onedark.nvim",
+    "rcarriga/nvim-notify",
   },
   keys = {
     { "<LEADER>ns", function() require("package-info").show() end },

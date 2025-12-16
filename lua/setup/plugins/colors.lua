@@ -31,8 +31,13 @@ return {
         PackageInfoUpToDateVersion = { fg = '$green' },
         PackageInfoOutdatedVersion = { fg = '$orange' },
         PackageInfoInErrorVersion = { fg = '$red' },
+        -- spellchecking colors
+        SpelunkerSpellBad = { fg = '$red' },
+        SpelunkerComplexOrCompoundWord = { fg = '$orange' },
       }
     }
     require 'onedark'.load()
+    vim.cmd [[hi SpelunkerComplexOrCompoundWord cterm=undercurl gui=undercurl]]
+    vim.cmd [[hi SpelunkerSpellBad cterm=undercurl gui=undercurl]]
   end,
 };
