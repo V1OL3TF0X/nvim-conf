@@ -1,3 +1,78 @@
+local tree_actions = {}
+local function tree_actions_menu(node)
+  local entry_maker = function(menu_item)
+    return {
+      value = menu_item,
+      ordinal = menu_item.name,
+      display = menu_item.name,
+    }
+  end
+
+  local finder = require("telescope.finders").new_table({
+    results = tree_actions,
+    entry_maker = entry_maker,
+  })
+
+  local sorter = require("telescope.sorters").get_generic_fuzzy_sorter()
+
+  local default_options = {
+    finder = finder,
+    sorter = sorter,
+    attach_mappings = function(prompt_buffer_number)
+      local actions = require("telescope.actions")
+
+      -- On item select
+      actions.select_default:replace(function()
+        local state = require("telescope.actions.state")
+        local selection = state.get_selected_entry()
+        -- Closing the picker
+        actions.close(prompt_buffer_number)
+        -- Executing the callback
+        selection.value.handler(node)
+      end)
+
+      -- The following actions are disabled in this example
+      -- You may want to map them too depending on your needs though
+      actions.add_selection:replace(function() end)
+      actions.remove_selection:replace(function() end)
+      actions.toggle_selection:replace(function() end)
+      actions.select_all:replace(function() end)
+      actions.drop_all:replace(function() end)
+      actions.toggle_all:replace(function() end)
+
+      return true
+    end,
+  }
+
+  -- Opening the menu
+  require("telescope.pickers").new({ prompt_title = "Tree menu" }, default_options):find()
+end
+
+local function natural_cmp(left, right)
+  left = left.name:lower()
+  right = right.name:lower()
+
+  if left == right then
+    return false
+  end
+
+  for i = 1, math.max(string.len(left), string.len(right)), 1 do
+    local l = string.sub(left, i, -1)
+    local r = string.sub(right, i, -1)
+
+    if type(tonumber(string.sub(l, 1, 1))) == "number" and type(tonumber(string.sub(r, 1, 1))) == "number" then
+      local l_number = tonumber(string.match(l, "^[0-9]+"))
+      local r_number = tonumber(string.match(r, "^[0-9]+"))
+
+      if l_number ~= r_number then
+        return l_number < r_number
+      end
+    elseif string.sub(l, 1, 1) ~= string.sub(r, 1, 1) then
+      return l < r
+    end
+  end
+end
+
 return {
   -- https://github.com/nvim-tree/nvim-tree.lua
   'nvim-tree/nvim-tree.lua',
@@ -11,73 +86,52 @@ return {
         window_picker = {
           enable = false
         },
-      }
+      },
     },
+    sort_by = function(nodes)
+      table.sort(nodes, natural_cmp)
+    end,
     on_attach = function(bufnr)
-      local api = require("nvim-tree.api")
-
+      local api = require 'nvim-tree.api'
       local function opts(desc)
         return { desc = "nvim-tree: " .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
       end
+      -- default bindings
+      api.config.mappings.default_on_attach(bufnr)
+      vim.keymap.set("n", "<M-c>", function()
+        local file_src = api.tree.get_node_under_cursor()["absolute_path"]
+        local input_opts = { prompt = "Copy to ", default = file_src, completion = "file" }
 
-      vim.keymap.set("n", "<C-]>", api.tree.change_root_to_node, opts("CD"))
-      vim.keymap.set("n", "<C-e>", api.node.open.replace_tree_buffer, opts("Open: In Place"))
-      vim.keymap.set("n", "<C-k>", api.node.show_info_popup, opts("Info"))
-      vim.keymap.set("n", "<C-r>", api.fs.rename_sub, opts("Rename: Omit Filename"))
-      vim.keymap.set("n", "<C-t>", api.node.open.tab, opts("Open: New Tab"))
-      vim.keymap.set("n", "<C-v>", api.node.open.vertical, opts("Open: Vertical Split"))
-      vim.keymap.set("n", "<C-x>", api.node.open.horizontal, opts("Open: Horizontal Split"))
-      vim.keymap.set("n", "<BS>", api.node.navigate.parent_close, opts("Close Directory"))
-      vim.keymap.set("n", "<CR>", api.node.open.edit, opts("Open"))
-      vim.keymap.set("n", "<Tab>", api.node.open.preview, opts("Open Preview"))
-      vim.keymap.set("n", ">", api.node.navigate.sibling.next, opts("Next Sibling"))
-      vim.keymap.set("n", "<", api.node.navigate.sibling.prev, opts("Previous Sibling"))
-      vim.keymap.set("n", ".", api.node.run.cmd, opts("Run Command"))
-      vim.keymap.set("n", "-", api.tree.change_root_to_parent, opts("Up"))
-      vim.keymap.set("n", "a", api.fs.create, opts("Create File Or Directory"))
-      vim.keymap.set("n", "bd", api.marks.bulk.delete, opts("Delete Bookmarked"))
-      vim.keymap.set("n", "bt", api.marks.bulk.trash, opts("Trash Bookmarked"))
-      vim.keymap.set("n", "bmv", api.marks.bulk.move, opts("Move Bookmarked"))
-      vim.keymap.set("n", "B", api.tree.toggle_no_buffer_filter, opts("Toggle Filter: No Buffer"))
-      vim.keymap.set("n", "c", api.fs.copy.node, opts("Copy"))
-      vim.keymap.set("n", "C", api.tree.toggle_git_clean_filter, opts("Toggle Filter: Git Clean"))
-      vim.keymap.set("n", "[c", api.node.navigate.git.prev, opts("Prev Git"))
-      vim.keymap.set("n", "]c", api.node.navigate.git.next, opts("Next Git"))
-      vim.keymap.set("n", "d", api.fs.remove, opts("Delete"))
-      vim.keymap.set("n", "D", api.fs.trash, opts("Trash"))
-      vim.keymap.set("n", "E", api.tree.expand_all, opts("Expand All"))
-      vim.keymap.set("n", "e", api.fs.rename_basename, opts("Rename: Basename"))
-      vim.keymap.set("n", "]e", api.node.navigate.diagnostics.next, opts("Next Diagnostic"))
-      vim.keymap.set("n", "[e", api.node.navigate.diagnostics.prev, opts("Prev Diagnostic"))
-      vim.keymap.set("n", "F", api.live_filter.clear, opts("Live Filter: Clear"))
-      vim.keymap.set("n", "f", api.live_filter.start, opts("Live Filter: Start"))
-      vim.keymap.set("n", "g?", api.tree.toggle_help, opts("Help"))
-      vim.keymap.set("n", "gy", api.fs.copy.absolute_path, opts("Copy Absolute Path"))
-      vim.keymap.set("n", "ge", api.fs.copy.basename, opts("Copy Basename"))
-      vim.keymap.set("n", "H", api.tree.toggle_hidden_filter, opts("Toggle Filter: Dotfiles"))
-      vim.keymap.set("n", "I", api.tree.toggle_gitignore_filter, opts("Toggle Filter: Git Ignore"))
-      vim.keymap.set("n", "J", api.node.navigate.sibling.last, opts("Last Sibling"))
-      vim.keymap.set("n", "K", api.node.navigate.sibling.first, opts("First Sibling"))
-      vim.keymap.set("n", "L", api.node.open.toggle_group_empty, opts("Toggle Group Empty"))
-      vim.keymap.set("n", "M", api.tree.toggle_no_bookmark_filter, opts("Toggle Filter: No Bookmark"))
-      vim.keymap.set("n", "m", api.marks.toggle, opts("Toggle Bookmark"))
-      vim.keymap.set("n", "o", api.node.open.edit, opts("Open"))
-      vim.keymap.set("n", "O", api.node.open.no_window_picker, opts("Open: No Window Picker"))
-      vim.keymap.set("n", "p", api.fs.paste, opts("Paste"))
-      vim.keymap.set("n", "P", api.node.navigate.parent, opts("Parent Directory"))
-      vim.keymap.set("n", "q", api.tree.close, opts("Close"))
-      vim.keymap.set("n", "r", api.fs.rename, opts("Rename"))
-      vim.keymap.set("n", "R", api.tree.reload, opts("Refresh"))
-      vim.keymap.set("n", "s", api.node.run.system, opts("Run System"))
-      vim.keymap.set("n", "S", api.tree.search_node, opts("Search"))
-      vim.keymap.set("n", "u", api.fs.rename_full, opts("Rename: Full Path"))
-      vim.keymap.set("n", "U", api.tree.toggle_custom_filter, opts("Toggle Filter: Hidden"))
-      vim.keymap.set("n", "W", api.tree.collapse_all, opts("Collapse All"))
-      vim.keymap.set("n", "x", api.fs.cut, opts("Cut"))
-      vim.keymap.set("n", "y", api.fs.copy.filename, opts("Copy Name"))
-      vim.keymap.set("n", "Y", api.fs.copy.relative_path, opts("Copy Relative Path"))
-      vim.keymap.set("n", "<2-LeftMouse>", api.node.open.edit, opts("Open"))
-      vim.keymap.set("n", "<2-RightMouse>", api.tree.change_root_to_node, opts("CD"))
+        vim.ui.input(input_opts, function(file_out)
+          local dir = vim.fn.fnamemodify(file_out, ":h")
+
+          local res = vim.fn.system({ "mkdir", "-p", dir })
+          if vim.v.shell_error ~= 0 then
+            vim.notify(res, vim.log.levels.ERROR, { title = "NvimTree" })
+            return
+          end
+
+          vim.fn.system({ "cp", "-R", file_src, file_out })
+        end)
+      end, opts("Copy File To"))
+
+      vim.keymap.set("n", "<M-x>", function()
+        local file_src = api.tree.get_node_under_cursor()["absolute_path"]
+        local input_opts = { prompt = "Move to ", default = file_src, completion = "file" }
+
+        vim.ui.input(input_opts, function(file_out)
+          local dir = vim.fn.fnamemodify(file_out, ":h")
+
+          local res = vim.fn.system({ "mkdir", "-p", dir })
+          if vim.v.shell_error ~= 0 then
+            vim.notify(res, vim.log.levels.ERROR, { title = "NvimTree" })
+            return
+          end
+
+          vim.fn.system { "mv", file_src, file_out }
+        end)
+      end, opts("Move File To"))
+      vim.keymap.set("n", "<C-Space>", tree_actions_menu, { buffer = bufnr, noremap = true, silent = true })
     end,
   },
   config = function(_, opts)
@@ -87,5 +141,34 @@ return {
     vim.keymap.set('n', '<leader>tf', vim.cmd.NvimTreeFindFile)
     vim.keymap.set('n', '<leader>Pv', vim.cmd.NvimTreeFocus)
     require("nvim-tree").setup(opts)
+    local api = require 'nvim-tree.api'
+
+    tree_actions = {
+      {
+        name = "Create node",
+        handler = api.fs.create,
+      },
+      {
+        name = "Remove node",
+        handler = api.fs.remove,
+      },
+      {
+        name = "Trash node",
+        handler = api.fs.trash,
+      },
+      {
+        name = "Rename node",
+        handler = api.fs.rename,
+      },
+      {
+        name = "Move",
+        handler = api.fs.rename_sub,
+      },
+      {
+        name = "Copy",
+        handler = api.fs.copy.node,
+      },
+    }
+    -- ... other custom actions you may want to display in the menu
   end
 }
