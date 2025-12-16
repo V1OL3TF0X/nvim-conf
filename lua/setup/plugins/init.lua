@@ -3,7 +3,11 @@ return {
   { 'tpope/vim-abolish',                   lazy = false },
   { 'mattn/emmet-vim',                     ft = { "html", "typescriptreact", "djangohtml", "javascriptreact", "php", "astro" } },
   { 'windwp/nvim-ts-autotag',              lazy = false },
-  { 'jubnzv/virtual-types.nvim',           lazy = false },
+  {
+    '27justin/virtuality.nvim',
+    lazy = false,
+    dependencies = { 'rcarriga/nvim-notify' }
+  },
   {
     'kamykn/spelunker.vim',
     dependencies = { 'kamykn/popup-menu.nvim' },

@@ -5,7 +5,6 @@ return {
   branch = 'v3.x',
   lazy = false,
   dependencies = {
-    { 'jubnzv/virtual-types.nvim' },
     --- Uncomment the two plugins below if you want to manage the language servers from neovim
     { 'williamboman/mason.nvim' },
     { 'williamboman/mason-lspconfig.nvim' },
@@ -96,9 +95,6 @@ return {
       angularls = function()
         lspconf.angularls.setup {}
       end,
-      ts_ls = function()
-        lspconf.ts_ls.setup { on_attach = require 'virtualtypes'.on_attach }
-      end,
       jsonls = function()
         lspconf.jsonls.setup {
           settings = {
@@ -110,7 +106,7 @@ return {
         }
       end,
     }
-    local handlers = vim.iter({ 'htmx', 'tailwindcss', 'intelephense', 'rust_analyzer', 'eslint' }):fold(
+    local handlers = vim.iter({ 'htmx', 'tailwindcss', 'intelephense', 'rust_analyzer', 'eslint', 'ts_ls' }):fold(
       standard_handlers,
       function(table, item)
         table[item] = function()
@@ -122,7 +118,10 @@ return {
       -- Replace the language servers listed here
       -- with the ones you want to install
       ensure_installed = { 'ts_ls', 'rust_analyzer', 'lua_ls', 'volar', 'html', 'htmx', 'gopls', 'graphql', 'powershell_es', 'tailwindcss', 'jqls', 'eslint', 'jsonls', 'jdtls' },
-      handlers = handlers
+      handlers = handlers,
+      inlay_hints = {
+        enabled = true,
+      }
     }
     vim.diagnostic.config {
       virtual_text = true

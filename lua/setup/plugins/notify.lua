@@ -1,6 +1,6 @@
 return {
   "rcarriga/nvim-notify",
-  lazy = true,
+  lazy = false,
   init = function()
     vim.notify = function(msg, lvl, opts)
       if not require("lazy.core.config").plugins["nvim-notify"]._.loaded then
