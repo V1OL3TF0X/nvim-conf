@@ -9,7 +9,7 @@ return {
     --- Uncomment the two plugins below if you want to manage the language servers from neovim
     { 'williamboman/mason.nvim' },
     { 'williamboman/mason-lspconfig.nvim' },
-
+    { 'WhoIsSethDaniel/mason-tool-installer.nvim' },
     -- LSP Support
     { 'b0o/schemastore.nvim' },
     { 'neovim/nvim-lspconfig' },
@@ -77,9 +77,18 @@ return {
 
     lsp.setup()
     require('mason').setup {}
+    require 'mason-tool-installer'.setup {
+      ensure_installed = {
+        'java-debug-adapter',
+        'java-test'
+      },
+    }
+    vim.api.nvim_command('MasonToolsInstall')
+
     local lspconf = require 'lspconfig'
     local standard_handlers = {
       lsp.default_setup,
+      jdtls = function() end,
       lua_ls = function()
         local lua_opts = lsp.nvim_lua_ls()
         lspconf.lua_ls.setup(lua_opts)
@@ -112,7 +121,7 @@ return {
     require('mason-lspconfig').setup {
       -- Replace the language servers listed here
       -- with the ones you want to install
-      ensure_installed = { 'ts_ls', 'rust_analyzer', 'lua_ls', 'volar', 'html', 'htmx', 'gopls', 'graphql', 'powershell_es', 'tailwindcss', 'jqls', 'eslint', 'jsonls' },
+      ensure_installed = { 'ts_ls', 'rust_analyzer', 'lua_ls', 'volar', 'html', 'htmx', 'gopls', 'graphql', 'powershell_es', 'tailwindcss', 'jqls', 'eslint', 'jsonls', 'jdtls' },
       handlers = handlers
     }
     vim.diagnostic.config {

@@ -45,6 +45,7 @@ return {
       html = { 'prettier' },
       php = { 'prettier' },
       djangohtml = { 'prettier' },
+      java = { 'jdtls' },
     },
     format_on_save = function(bufnr)
       -- Disable autoformat for files in a certain path
