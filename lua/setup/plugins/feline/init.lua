@@ -324,7 +324,7 @@ local function setup_comp(feline)
 end
 
 return {
-  "second2050/feline.nvim",
+  "jmcclell/feline.nvim",
   dependencies = {
     'lewis6991/gitsigns.nvim',
     'nvim-tree/nvim-web-devicons',

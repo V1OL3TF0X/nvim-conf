@@ -4,11 +4,6 @@ return {
   { 'mattn/emmet-vim',                     ft = { "html", "typescriptreact", "djangohtml", "javascriptreact", "php", "astro" } },
   { 'windwp/nvim-ts-autotag',              lazy = false },
   {
-    '27justin/virtuality.nvim',
-    lazy = false,
-    dependencies = { 'rcarriga/nvim-notify' }
-  },
-  {
     'kamykn/spelunker.vim',
     dependencies = { 'kamykn/popup-menu.nvim' },
     lazy = false
@@ -48,7 +43,7 @@ return {
         require("lsp-file-operations").setup()
       end,
     },
-  }
+  },
   {
     'dmmulroy/tsc.nvim',
     dependencies = { "rcarriga/nvim-notify" },

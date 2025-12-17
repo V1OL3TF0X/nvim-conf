@@ -1,13 +1,45 @@
-local thisFilePath = (... or 'setup.plugins.lua'):match("(.-)[^%.]+$")
+local function nvim_lua_config(opts)
+  local runtime_path = vim.split(package.path, ';')
+  table.insert(runtime_path, 'lua/?.lua')
+  table.insert(runtime_path, 'lua/?/init.lua')
 
+  local config = {
+    settings = {
+      Lua = {
+        -- Disable telemetry
+        telemetry = { enable = false },
+        runtime = {
+          -- Tell the language server which version of Lua you're using
+          -- (most likely LuaJIT in the case of Neovim)
+          version = 'LuaJIT',
+          path = runtime_path,
+        },
+        diagnostics = {
+          -- Get the language server to recognize the `vim` global
+          globals = { 'vim' }
+        },
+        workspace = {
+          checkThirdParty = false,
+          library = {
+            -- Make the server aware of Neovim runtime files
+            vim.env.VIMRUNTIME,
+            '${3rd}/luv/library'
+          }
+        }
+      }
+    }
+  }
+
+  return vim.tbl_deep_extend('force', config, opts or {})
+end
 return {
-  'VonHeikemen/lsp-zero.nvim',
-  branch = 'v3.x',
+  'mason-org/mason-lspconfig.nvim',
   lazy = false,
   dependencies = {
+    {
+      'mason-org/mason.nvim',
+    },
     --- Uncomment the two plugins below if you want to manage the language servers from neovim
-    { 'williamboman/mason.nvim' },
-    { 'williamboman/mason-lspconfig.nvim' },
     { 'WhoIsSethDaniel/mason-tool-installer.nvim' },
     -- LSP Support
     { 'b0o/schemastore.nvim' },
@@ -18,8 +50,7 @@ return {
     { 'L3MON4D3/LuaSnip' },
   },
   config = function()
-    local parser_config = require 'nvim-treesitter.parsers'.get_parser_configs()
-    parser_config.gotmpl = {
+    require 'nvim-treesitter.parsers'.gotmpl = {
       install_info = {
         url = "https://github.com/ngalaiko/tree-sitter-go-template",
         files = { "src/parser.c" }
@@ -27,9 +58,6 @@ return {
       filetype = "gotmpl",
       used_by = { "gohtmltmpl", "gotexttmpl", "gotmpl" }
     }
-    local lsp = require("lsp-zero")
-
-    lsp.preset("recommended")
 
     local cmp = require('cmp')
     local cmp_select = { behavior = cmp.SelectBehavior.Select }
@@ -48,33 +76,35 @@ return {
       }
     }
 
-    lsp.set_preferences {
-      suggest_lsp_servers = true,
-      sign_icons = {
-        error = 'E',
-        warn = 'W',
-        hint = 'H',
-        info = 'I'
-      }
-    }
+    vim.api.nvim_create_autocmd('LspAttach', {
+      callback = function(evt)
+        local opts = { buffer = evt.buf, remap = false }
+        local expr_opts = { expr = true, buffer = evt.buf, remap = false }
 
-    lsp.on_attach(function(client, bufnr)
-      local opts = { buffer = bufnr, remap = false }
+        vim.keymap.set("n", "gd", function() vim.lsp.buf.definition() end, opts)
+        vim.keymap.set("n", "gr", function() vim.lsp.buf.references() end, opts)
+        vim.keymap.set("n", "K", function() vim.lsp.buf.hover() end, opts)
+        vim.keymap.set("n", "<leader>vws", function() vim.lsp.buf.workspace_symbol() end, opts)
+        vim.keymap.set("n", "<leader>vd", function() vim.diagnostic.open_float() end, opts)
+        vim.keymap.set("n", "[d", function() vim.diagnostic.jump { count = vim.v.count or 1 } end, expr_opts)
+        vim.keymap.set("n", "]d", function() vim.diagnostic.jump { count = -(vim.v.count or 1) } end, expr_opts)
+        vim.keymap.set("n", "<leader>.", function() vim.lsp.buf.code_action({ apply = true }) end, opts)
+        vim.keymap.set("n", "<leader>vrr", function() vim.lsp.buf.references() end, opts)
+        vim.keymap.set("n", "<leader>vrn", function() vim.lsp.buf.rename() end, opts)
+        vim.keymap.set("i", "<C-h>", function() vim.lsp.buf.signature_help() end, opts)
+        vim.keymap.set("n", "<leader>ih", function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled()) end,
+          opts)
+        vim.keymap.set("n", "<leader>ic",
+          function() vim.lsp.inline_completion.enable(not vim.lsp.inline_completion.is_enabled()) end,
+          opts)
+        vim.keymap.set('i', '<Tab>', function()
+          if not vim.lsp.inline_completion.get() then
+            return '<Tab>'
+          end
+        end, { buffer = evt.buf, expr = true, desc = 'Accept the current inline completion' })
+      end
+    })
 
-      vim.keymap.set("n", "gd", function() vim.lsp.buf.definition() end, opts)
-      vim.keymap.set("n", "gr", function() vim.lsp.buf.references() end, opts)
-      vim.keymap.set("n", "K", function() vim.lsp.buf.hover() end, opts)
-      vim.keymap.set("n", "<leader>vws", function() vim.lsp.buf.workspace_symbol() end, opts)
-      vim.keymap.set("n", "<leader>vd", function() vim.diagnostic.open_float() end, opts)
-      vim.keymap.set("n", "[d", function() vim.diagnostic.goto_next() end, opts)
-      vim.keymap.set("n", "]d", function() vim.diagnostic.goto_prev() end, opts)
-      vim.keymap.set("n", "<leader>.", function() vim.lsp.buf.code_action({ apply = true }) end, opts)
-      vim.keymap.set("n", "<leader>vrr", function() vim.lsp.buf.references() end, opts)
-      vim.keymap.set("n", "<leader>vrn", function() vim.lsp.buf.rename() end, opts)
-      vim.keymap.set("i", "<C-h>", function() vim.lsp.buf.signature_help() end, opts)
-    end)
-
-    lsp.setup()
     require('mason').setup {}
     require 'mason-tool-installer'.setup {
       ensure_installed = {
@@ -84,10 +114,7 @@ return {
     }
     vim.api.nvim_command('MasonToolsInstall')
 
-    local lspconf = require 'lspconfig'
-    lspconf.util.default_config = vim.tbl_extend(
-      'force',
-      lspconf.util.default_config,
+    vim.lsp.config('*',
       {
         capabilities = vim.tbl_deep_extend(
           "force",
@@ -98,46 +125,39 @@ return {
         )
       }
     )
-    local standard_handlers = {
-      lsp.default_setup,
-      jdtls = function() end,
-      lua_ls = function()
-        local lua_opts = lsp.nvim_lua_ls()
-        lspconf.lua_ls.setup(lua_opts)
-      end,
-      angularls = function()
-        lspconf.angularls.setup {}
-      end,
-      jsonls = function()
-        lspconf.jsonls.setup {
-          settings = {
-            json = {
-              schemas = require('schemastore').json.schemas(),
-              validate = { enable = true },
-            },
-          },
-        }
-      end,
-    }
-    local handlers = vim.iter({ 'htmx', 'tailwindcss', 'intelephense', 'rust_analyzer', 'eslint', 'ts_ls' }):fold(
-      standard_handlers,
-      function(table, item)
-        table[item] = function()
-          lspconf[item].setup(require(thisFilePath .. 'lsp_configs.' .. item))
-        end
-        return table
-      end)
+    local lua_opts = nvim_lua_config()
+    vim.lsp.config('lua_ls', lua_opts)
+    vim.lsp.config('jsonls', {
+      settings = {
+        json = {
+          schemas = require('schemastore').json.schemas(),
+          validate = { enable = true },
+        },
+      },
+    })
+    for item in vim.iter({ 'htmx', 'tailwindcss', 'intelephense', 'rust_analyzer', 'eslint', 'ts_ls' }) do
+      vim.lsp.config(item, require('lsp.' .. item))
+    end
     require('mason-lspconfig').setup {
       -- Replace the language servers listed here
       -- with the ones you want to install
-      ensure_installed = { 'ts_ls', 'rust_analyzer', 'lua_ls', 'volar', 'html', 'htmx', 'gopls', 'graphql', 'powershell_es', 'tailwindcss', 'jqls', 'eslint', 'jsonls', 'jdtls' },
-      handlers = handlers,
-      inlay_hints = {
-        enabled = true,
-      }
+      ensure_installed = { 'ts_ls', 'rust_analyzer', 'lua_ls', 'vue_ls', 'html', 'htmx', 'gopls', 'graphql', 'powershell_es', 'tailwindcss', 'jqls', 'eslint', 'jsonls', 'jdtls' },
+      automatic_enable = { exclude = { 'jdtls' } },
     }
+
     vim.diagnostic.config {
       virtual_text = true
     }
+    vim.api.nvim_create_autocmd('User', {
+      pattern = 'TSUpdate',
+      callback = function()
+        require('nvim-treesitter.parsers').arktype = {
+          install_info = {
+            url = 'https://github.com/jeffrom/tree-sitter-arktype',
+            queries = 'queries', -- also install queries from given directory
+          },
+        }
+      end
+    })
   end,
 };

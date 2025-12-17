@@ -21,11 +21,12 @@ return {
   config = function()
     local colors = require 'onedark.palette'
     require 'package-info'.setup {
-      colors = {
-        up_to_date = colors.light.green,
-        outdated = colors.light.orange,
-        invalid = colors.light.red,
+      highlights = {
+        up_to_date = { fg = colors.light.green },
+        outdated = { fg = colors.light.orange },
+        invalid = { fg = colors.light.red },
       },
+      icons = { enable = true },
       package_manager = 'pnpm'
     }
     local consts = require 'package-info.utils.constants'
