@@ -27,24 +27,24 @@ return {
       function()
         require("conform").format({ async = true, lsp_fallback = true })
       end,
-      mode = "",
+      mode = "n",
       desc = "Format buffer",
     },
   },
   opts = {
     quiet = false,
     formatters_by_ft = {
-      javascript = { 'prettier' },
-      typescript = { 'prettier' },
-      typescriptreact = { 'prettier' },
-      javascriptreact = { 'prettier' },
-      json = { 'prettier' },
-      css = { 'prettier' },
-      scss = { 'prettier' },
-      astro = { 'prettier' },
-      html = { 'prettier' },
-      php = { 'prettier' },
-      djangohtml = { 'prettier' },
+      javascript = { 'prettierd' },
+      typescript = { 'prettierd' },
+      typescriptreact = { 'prettierd' },
+      javascriptreact = { 'prettierd' },
+      json = { 'prettierd' },
+      css = { 'prettierd' },
+      scss = { 'prettierd' },
+      astro = { 'prettierd' },
+      html = { 'prettierd' },
+      php = { 'prettierd' },
+      djangohtml = { 'prettierd' },
       java = { 'jdtls' },
     },
     format_on_save = function(bufnr)
@@ -77,7 +77,7 @@ return {
   config = function(_, opts)
     require 'conform'.setup(opts)
     -- Customize prettier args
-    require('conform.formatters.prettier').args = function(self, ctx)
+    require('conform.formatters.prettierd').args = function(self, ctx)
       local prettier_roots = { '.prettierrc', '.prettierrc.json', 'prettier.config.js', '.prettierrc.toml' }
       local args = { '--stdin-filepath', '$FILENAME' }
 

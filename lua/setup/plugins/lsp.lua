@@ -69,12 +69,26 @@ return {
     }
 
     cmp.setup {
+      snippet = {
+        -- REQUIRED - you must specify a snippet engine
+        expand = function(args)
+          require('luasnip').lsp_expand(args.body) -- For `luasnip` users.
+          vim.snippet.expand(args.body)            -- For native neovim snippets (Neovim v0.10+)
+        end,
+      },
       mapping = cmp_mappings,
       window = {
         completion = cmp.config.window.bordered(),
         documentation = cmp.config.window.bordered(),
-      }
+      },
+      sources = cmp.config.sources {
+        { name = 'nvim_lsp' },
+        { name = 'luasnip' },
+      },
     }
+    vim.lsp.config('*', {
+      capabilities = require 'cmp_nvim_lsp'.default_capabilities()
+    })
 
     vim.api.nvim_create_autocmd('LspAttach', {
       callback = function(evt)
@@ -124,7 +138,7 @@ return {
         },
       },
     })
-    for item in vim.iter({ 'htmx', 'tailwindcss', 'intelephense', 'rust_analyzer', 'eslint', 'ts_ls' }) do
+    for item in vim.iter({ 'htmx', 'tailwindcss', 'intelephense', 'rust_analyzer', 'ts_ls' }) do
       vim.lsp.config(item, require('lsp.' .. item))
     end
     require('mason-lspconfig').setup {
