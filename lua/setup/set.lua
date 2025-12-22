@@ -35,11 +35,7 @@ vim.opt.signcolumn = 'yes'
 vim.opt.cc = '80'
 vim.opt.list = true
 vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
-vim.cmd [[
-augroup myterm | au!
-    au TermOpen * if &buftype ==# 'terminal' | resize 10 | endif
-augroup end
-]]
+
 -- font options
 vim.g.have_nerd_font = true
 vim.g.onedark_terminal_italics = 1
