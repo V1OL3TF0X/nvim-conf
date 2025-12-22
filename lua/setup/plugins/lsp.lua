@@ -145,9 +145,6 @@ return {
         },
       },
     })
-    for item in vim.iter({ 'htmx', 'tailwindcss', 'intelephense', 'rust_analyzer', 'ts_ls' }) do
-      vim.lsp.config(item, require('lsp.' .. item))
-    end
     require('mason-lspconfig').setup {
       -- Replace the language servers listed here
       -- with the ones you want to install
