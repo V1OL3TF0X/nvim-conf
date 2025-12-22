@@ -113,14 +113,16 @@ return {
         vim.keymap.set("i", "<C-h>", function() vim.lsp.buf.signature_help() end, opts)
         vim.keymap.set("n", "<leader>ih", function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled()) end,
           opts)
-        vim.keymap.set("n", "<leader>ic",
-          function() vim.lsp.inline_completion.enable(not vim.lsp.inline_completion.is_enabled()) end,
-          opts)
-        vim.keymap.set('i', '<Tab>', function()
-          if not vim.lsp.inline_completion.get() then
-            return '<Tab>'
-          end
-        end, { buffer = evt.buf, expr = true, desc = 'Accept the current inline completion' })
+        if vim.lsp.inline_completion ~= nil then
+          vim.keymap.set("n", "<leader>ic",
+            function() vim.lsp.inline_completion.enable(not vim.lsp.inline_completion.is_enabled()) end,
+            opts)
+          vim.keymap.set('i', '<Tab>', function()
+            if not vim.lsp.inline_completion.get() then
+              return '<Tab>'
+            end
+          end, { buffer = evt.buf, expr = true, desc = 'Accept the current inline completion' })
+        end
       end
     })
 

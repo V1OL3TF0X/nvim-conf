@@ -11,6 +11,9 @@ return {
     vim.g.airline_theme = 'onedark'
     require 'onedark'.setup {
       highlights = {
+        ['@lsp.type.member.typescriptreact'] = { fg = '$cyan' },
+        typescriptPredefinedType = { fg = '$orange' },
+        Special = { fg = '$purple' },
         ColorColumn = { bg = '#5d2183' },
         CursorColumn = { bg = '#5d2183' },
         ['@tag.delimiter'] = { fg = '$fg' },
