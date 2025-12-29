@@ -3,13 +3,13 @@ return {
   priority = 1000,
   dependencies = {
     'lewis6991/gitsigns.nvim',
-    'tpope/vim-fugitive'
+    'tpope/vim-fugitive',
   },
   lazy = false,
   config = function()
     --themes
     vim.g.airline_theme = 'onedark'
-    require 'onedark'.setup {
+    require('onedark').setup {
       highlights = {
         ['@lsp.type.member.typescriptreact'] = { fg = '$cyan' },
         typescriptPredefinedType = { fg = '$orange' },
@@ -37,10 +37,10 @@ return {
         -- spellchecking colors
         SpelunkerSpellBad = { fg = '$red' },
         SpelunkerComplexOrCompoundWord = { fg = '$orange' },
-      }
+      },
     }
-    require 'onedark'.load()
+    require('onedark').load()
     vim.cmd [[hi SpelunkerComplexOrCompoundWord cterm=undercurl gui=undercurl]]
     vim.cmd [[hi SpelunkerSpellBad cterm=undercurl gui=undercurl]]
   end,
-};
+}

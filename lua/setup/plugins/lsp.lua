@@ -16,18 +16,18 @@ local function nvim_lua_config(opts)
         },
         diagnostics = {
           -- Get the language server to recognize the `vim` global
-          globals = { 'vim' }
+          globals = { 'vim' },
         },
         workspace = {
           checkThirdParty = false,
           library = {
             -- Make the server aware of Neovim runtime files
             vim.env.VIMRUNTIME,
-            '${3rd}/luv/library'
-          }
-        }
-      }
-    }
+            '${3rd}/luv/library',
+          },
+        },
+      },
+    },
   }
 
   return vim.tbl_deep_extend('force', config, opts or {})
@@ -50,30 +50,30 @@ return {
     { 'L3MON4D3/LuaSnip' },
   },
   config = function()
-    require 'nvim-treesitter.parsers'.gotmpl = {
+    require('nvim-treesitter.parsers').gotmpl = {
       install_info = {
-        url = "https://github.com/ngalaiko/tree-sitter-go-template",
-        files = { "src/parser.c" }
+        url = 'https://github.com/ngalaiko/tree-sitter-go-template',
+        files = { 'src/parser.c' },
       },
-      filetype = "gotmpl",
-      used_by = { "gohtmltmpl", "gotexttmpl", "gotmpl" }
+      filetype = 'gotmpl',
+      used_by = { 'gohtmltmpl', 'gotexttmpl', 'gotmpl' },
     }
 
-    local cmp = require('cmp')
+    local cmp = require 'cmp'
     local cmp_select = { behavior = cmp.SelectBehavior.Select }
     local cmp_mappings = cmp.mapping.preset.insert {
       ['<S-Tab>'] = cmp.mapping.select_prev_item(cmp_select),
       ['<Tab>'] = cmp.mapping.select_next_item(cmp_select),
-      ['<CR>'] = cmp.mapping.confirm({ select = true }),
-      ["<C-Space>"] = cmp.mapping.complete(),
+      ['<CR>'] = cmp.mapping.confirm { select = true },
+      ['<C-Space>'] = cmp.mapping.complete(),
     }
 
     cmp.setup {
       snippet = {
         -- REQUIRED - you must specify a snippet engine
         expand = function(args)
-          require('luasnip').lsp_expand(args.body) -- For `luasnip` users.
-          vim.snippet.expand(args.body)            -- For native neovim snippets (Neovim v0.10+)
+          --  require('luasnip').lsp_expand(args.body) -- For `luasnip` users.
+          vim.snippet.expand(args.body) -- For native neovim snippets (Neovim v0.10+)
         end,
       },
       mapping = cmp_mappings,
@@ -87,53 +87,50 @@ return {
       },
     }
     vim.lsp.config('*', {
-      capabilities = require 'cmp_nvim_lsp'.default_capabilities()
+      capabilities = require('cmp_nvim_lsp').default_capabilities(),
     })
 
     vim.api.nvim_create_autocmd('LspAttach', {
       callback = function(evt)
         local opts = { buffer = evt.buf, remap = false }
 
-        vim.keymap.set("n", "gd", function() vim.lsp.buf.definition() end, opts)
-        vim.keymap.set("n", "gr", function() vim.lsp.buf.references() end, opts)
-        vim.keymap.set("n", "K", function() vim.lsp.buf.hover() end, opts)
-        vim.keymap.set("n", "<leader>vws", function() vim.lsp.buf.workspace_symbol() end, opts)
-        vim.keymap.set("n", "<leader>vd", function() vim.diagnostic.open_float() end, opts)
-        vim.keymap.set("n", "[w",
-          function() vim.diagnostic.jump { count = 1, float = true, severity = { max = "WARN" } } end, opts)
-        vim.keymap.set("n", "]w",
-          function() vim.diagnostic.jump { count = -1, float = true, severity = { max = "WARN" } } end, opts)
-        vim.keymap.set("n", "[d", function() vim.diagnostic.jump { count = 1, float = true, severity = "ERROR" } end,
-          opts)
-        vim.keymap.set("n", "]d", function() vim.diagnostic.jump { count = -1, float = true, severity = "ERROR" } end,
-          opts)
-        vim.keymap.set("n", "<leader>.", function() vim.lsp.buf.code_action({ apply = true }) end, opts)
-        vim.keymap.set("n", "<leader>vrr", function() vim.lsp.buf.references() end, opts)
-        vim.keymap.set("n", "<leader>vrn", function() vim.lsp.buf.rename() end, opts)
-        vim.keymap.set("i", "<C-h>", function() vim.lsp.buf.signature_help() end, opts)
-        vim.keymap.set("n", "<leader>ih", function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled()) end,
-          opts)
+        -- stylua: ignore start
+        vim.keymap.set('n', 'gd', function() vim.lsp.buf.definition() end, opts)
+        vim.keymap.set('n', 'gr', function() vim.lsp.buf.references() end, opts)
+        vim.keymap.set('n', 'K', function() vim.lsp.buf.hover() end, opts)
+        vim.keymap.set('n', '<leader>vws', function() vim.lsp.buf.workspace_symbol() end, opts)
+        vim.keymap.set('n', '<leader>vd', function() vim.diagnostic.open_float() end, opts)
+        vim.keymap.set('n', '[w', function() vim.diagnostic.jump { count = 1, float = true, severity = { max = 'WARN' } } end, opts)
+        vim.keymap.set('n', ']w', function() vim.diagnostic.jump { count = -1, float = true, severity = { max = 'WARN' } } end, opts)
+        vim.keymap.set('n', '[d', function() vim.diagnostic.jump { count = 1, float = true, severity = 'ERROR' } end, opts)
+        vim.keymap.set('n', ']d', function() vim.diagnostic.jump { count = -1, float = true, severity = 'ERROR' } end, opts)
+        vim.keymap.set('n', '<leader>.', function() vim.lsp.buf.code_action { apply = true } end, opts)
+        vim.keymap.set('n', '<leader>vrr', function() vim.lsp.buf.references() end, opts)
+        vim.keymap.set('n', '<leader>vrn', function() vim.lsp.buf.rename() end, opts)
+        vim.keymap.set('i', '<C-h>', function() vim.lsp.buf.signature_help() end, opts)
+        vim.keymap.set('n', '<leader>ih', function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled()) end, opts)
+        -- stylua: ignore end
         if vim.lsp.inline_completion ~= nil then
-          vim.keymap.set("n", "<leader>ic",
-            function() vim.lsp.inline_completion.enable(not vim.lsp.inline_completion.is_enabled()) end,
-            opts)
+          vim.keymap.set('n', '<leader>ic', function()
+            vim.lsp.inline_completion.enable(not vim.lsp.inline_completion.is_enabled())
+          end, opts)
           vim.keymap.set('i', '<Tab>', function()
             if not vim.lsp.inline_completion.get() then
               return '<Tab>'
             end
           end, { buffer = evt.buf, expr = true, desc = 'Accept the current inline completion' })
         end
-      end
+      end,
     })
 
     require('mason').setup {}
-    require 'mason-tool-installer'.setup {
+    require('mason-tool-installer').setup {
       ensure_installed = {
         'java-debug-adapter',
-        'java-test'
+        'java-test',
       },
     }
-    vim.api.nvim_command('MasonToolsInstall')
+    vim.api.nvim_command 'MasonToolsInstall'
 
     local lua_opts = nvim_lua_config()
     vim.lsp.config('lua_ls', lua_opts)
@@ -148,12 +145,13 @@ return {
     require('mason-lspconfig').setup {
       -- Replace the language servers listed here
       -- with the ones you want to install
-      ensure_installed = { 'ts_ls', 'rust_analyzer', 'lua_ls', 'vue_ls', 'html', 'htmx', 'gopls', 'graphql', 'powershell_es', 'tailwindcss', 'jqls', 'eslint', 'jsonls', 'jdtls' },
+      -- stylua: ignore
+      ensure_installed = { 'ts_ls', 'rust_analyzer', 'lua_ls', 'vue_ls', 'html', 'htmx', 'gopls', 'graphql', 'powershell_es', 'tailwindcss', 'jqls', 'eslint', 'jsonls', 'jdtls', },
       automatic_enable = { exclude = { 'jdtls' } },
     }
 
     vim.diagnostic.config {
-      virtual_text = true
+      virtual_text = true,
     }
     vim.api.nvim_create_autocmd('User', {
       pattern = 'TSUpdate',
@@ -164,7 +162,7 @@ return {
             queries = 'queries', -- also install queries from given directory
           },
         }
-      end
+      end,
     })
   end,
-};
+}

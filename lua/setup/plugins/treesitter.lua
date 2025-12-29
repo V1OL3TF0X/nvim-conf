@@ -2,30 +2,30 @@ return {
   'nvim-treesitter/nvim-treesitter',
   dependencies = { 'nvim-treesitter/nvim-treesitter-context' },
   lazy = false,
-  build = ":TSUpdate",
+  build = ':TSUpdate',
   opts = {
     -- A list of parser names, or "all" (the five listed parsers should always be installed)
     ensure_installed = {
-      "c",
-      "lua",
-      "vim",
-      "vimdoc",
-      "query",
-      "javascript",
-      "rust",
-      "typescript",
-      "gitignore",
-      "go",
-      "gleam",
-      "graphql",
-      "html",
-      "json",
-      "php",
-      "python",
-      "sql",
-      "vue",
-      "css",
-      "scss",
+      'c',
+      'lua',
+      'vim',
+      'vimdoc',
+      'query',
+      'javascript',
+      'rust',
+      'typescript',
+      'gitignore',
+      'go',
+      'gleam',
+      'graphql',
+      'html',
+      'json',
+      'php',
+      'python',
+      'sql',
+      'vue',
+      'css',
+      'scss',
     },
     sync_install = false,
     auto_install = true,
@@ -38,9 +38,9 @@ return {
     },
     indent = {
       enable = true,
-    }
+    },
   },
   config = function(_, opts)
-    require 'treesitter-context'.setup()
-  end
-};
+    require('treesitter-context').setup()
+  end,
+}

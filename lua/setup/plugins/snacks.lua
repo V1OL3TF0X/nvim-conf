@@ -4,8 +4,10 @@ return {
   lazy = false,
   ---@class snacks.Config
   opts = function()
-    vim.keymap.set("n", "<leader>gb", function() require 'snacks'.git.blame_line() end)
-    vim.keymap.set("n", "<leader>gg", function() require 'snacks'.lazygit.open() end)
+    -- stylua: ignore start
+    vim.keymap.set('n', '<leader>gb', function() require('snacks').git.blame_line() end)
+    vim.keymap.set('n', '<leader>gg', function() require('snacks').lazygit.open() end)
+    -- stylua: ignore end
     return {
       bigfile = {
         enabled = true,
@@ -16,7 +18,7 @@ return {
             end
             defaults.setup(ctx)
           end
-        end
+        end,
       },
       dashboards = { enabled = true },
       git = { enabled = true },

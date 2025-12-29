@@ -15,7 +15,7 @@ vim.opt.wrap = false
 -- backup and undotree
 vim.opt.swapfile = false
 vim.opt.backup = false
-vim.opt.undodir = string.format("%s/undodoir", vim.fn.stdpath 'data')
+vim.opt.undodir = string.format('%s/undodoir', vim.fn.stdpath 'data')
 vim.opt.undofile = true
 
 -- search
@@ -40,9 +40,9 @@ vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
 vim.g.have_nerd_font = true
 vim.g.onedark_terminal_italics = 1
 vim.g.airline_powerline_fonts = 1
-vim.cmd('syntax on')
+vim.cmd 'syntax on'
 --undercurl
-vim.cmd([[let &t_Cs = "\e[4:3m"]])
-vim.cmd([[let &t_Ce = "\e[4:0m"]])
+vim.cmd [[let &t_Cs = "\e[4:3m"]]
+vim.cmd [[let &t_Ce = "\e[4:0m"]]
 
-vim.g.mapleader = " "
+vim.g.mapleader = ' '

@@ -1,3 +1,3 @@
 return {
-    filetypes = { 'html', 'djangohtml', 'astro', 'templ', 'askama' }
+  filetypes = { 'html', 'djangohtml', 'astro', 'templ', 'askama' },
 }

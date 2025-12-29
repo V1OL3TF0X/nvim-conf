@@ -1,25 +1,24 @@
 local vi_mode_text = {
-  n = "N",
-  i = "I",
-  v = "V",
-  vs = "V",
-  [''] = "V-B",
-  V = "V-L",
-  Vs = "V-L",
-  c = "C",
-  no = "U",
-  s = "U",
-  S = "U",
-  ic = "U",
-  r = "R",
-  R = "R",
-  Rv = "U",
+  n = 'N',
+  i = 'I',
+  v = 'V',
+  vs = 'V',
+  [''] = 'V-B',
+  V = 'V-L',
+  Vs = 'V-L',
+  c = 'C',
+  no = 'U',
+  s = 'U',
+  S = 'U',
+  ic = 'U',
+  r = 'R',
+  R = 'R',
+  Rv = 'U',
   cv = nil,
   ce = nil,
-  rm = "U",
-  t = "I"
+  rm = 'U',
+  t = 'I',
 }
-
 
 local function setup_comp(feline)
   local colors = require 'onedark.colors'
@@ -30,9 +29,9 @@ local function setup_comp(feline)
   local diagnostic_bg = colors.bg1
   local git_bg = colors.grey
   local file_name_bg = colors.bg0
-  local sep_wide = string.format("%s%s ", icons.block, icons.slant_right);
+  local sep_wide = string.format('%s%s ', icons.block, icons.slant_right)
   local has_branch = function()
-    local branch, _ = require 'feline.providers.git'.git_branch()
+    local branch, _ = require('feline.providers.git').git_branch()
     return #branch > 0
   end
   return {
@@ -48,7 +47,7 @@ local function setup_comp(feline)
               name = vi_mode_utils.get_mode_highlight_name(),
               fg = colors.bg0,
               bg = vi_mode_utils.get_mode_color(),
-              style = 'bold'
+              style = 'bold',
             }
           end,
           right_sep = function()
@@ -56,7 +55,7 @@ local function setup_comp(feline)
               str = icons.slant_right .. ' ',
               hl = { bg = file_name_bg, fg = vi_mode_utils.get_mode_color() },
             }
-          end
+          end,
         },
         {
           provider = custom_providers.readonly,
@@ -85,21 +84,21 @@ local function setup_comp(feline)
           hl = {
             fg = colors.blue,
             bg = file_name_bg,
-            style = 'bold'
+            style = 'bold',
           },
           right_sep = { hl = { bg = file_name_bg }, str = ' ' },
         },
         {
           provider = icons.slant_left,
           hl = function()
-            local hl = { bg = file_name_bg, fg = "bg" }
+            local hl = { bg = file_name_bg, fg = 'bg' }
             if has_branch() then
               hl.fg = git_bg
             elseif vim.tbl_count(vim.diagnostic.count(0)) ~= 0 then
               hl.fg = diagnostic_bg
             end
             return hl
-          end
+          end,
         },
         {
           provider = 'git_branch',
@@ -107,35 +106,35 @@ local function setup_comp(feline)
           hl = {
             bg = git_bg,
             fg = colors.purple,
-            style = 'bold'
+            style = 'bold',
           },
         },
         {
           provider = 'git_diff_added',
-          icon = " +",
+          icon = ' +',
           hl = {
             bg = git_bg,
             fg = colors.green,
             style = 'bold',
-          }
+          },
         },
         {
           provider = 'git_diff_removed',
-          icon = " -",
+          icon = ' -',
           hl = {
             bg = git_bg,
             fg = colors.red,
-            style = "bold"
-          }
+            style = 'bold',
+          },
         },
         {
           provider = 'git_diff_changed',
-          icon = " ~",
+          icon = ' ~',
           hl = {
             bg = git_bg,
             fg = colors.orange,
-            style = "bold"
-          }
+            style = 'bold',
+          },
         },
         {
           provider = icons.block .. icons.slant_right_2,
@@ -143,7 +142,7 @@ local function setup_comp(feline)
           hl = function()
             local hl = {
               fg = git_bg,
-              bg = "bg"
+              bg = 'bg',
             }
             if vim.tbl_count(vim.diagnostic.count(0)) ~= 0 then
               hl.bg = diagnostic_bg
@@ -158,8 +157,8 @@ local function setup_comp(feline)
           end,
           hl = {
             fg = colors.red,
-            bg = diagnostic_bg
-          }
+            bg = diagnostic_bg,
+          },
         },
         {
           provider = 'diagnostic_warnings',
@@ -168,8 +167,8 @@ local function setup_comp(feline)
           end,
           hl = {
             fg = colors.yellow,
-            bg = diagnostic_bg
-          }
+            bg = diagnostic_bg,
+          },
         },
         {
           provider = 'diagnostic_hints',
@@ -178,8 +177,8 @@ local function setup_comp(feline)
           end,
           hl = {
             fg = colors.cyan,
-            bg = diagnostic_bg
-          }
+            bg = diagnostic_bg,
+          },
         },
         {
           provider = 'diagnostic_info',
@@ -188,8 +187,8 @@ local function setup_comp(feline)
           end,
           hl = {
             fg = colors.blue,
-            bg = diagnostic_bg
-          }
+            bg = diagnostic_bg,
+          },
         },
         {
           provider = icons.block .. icons.slant_right_2,
@@ -197,21 +196,21 @@ local function setup_comp(feline)
             return vim.tbl_count(vim.diagnostic.count(0)) ~= 0
           end,
           hl = {
-            fg = diagnostic_bg
-          }
+            fg = diagnostic_bg,
+          },
         },
         {
           provider = function()
             local status = require 'package-info.ui.generic.loading-status'
-            return (status.state.current_spinner or "") .. require 'package-info'.get_status()
+            return (status.state.current_spinner or '') .. require('package-info').get_status()
           end,
           truncate_hide = true,
           hl = {
-            style = "bold",
+            style = 'bold',
           },
-          left_sep = "  ",
-          right_sep = " ",
-        }
+          left_sep = '  ',
+          right_sep = ' ',
+        },
       },
       {
         {
@@ -221,13 +220,13 @@ local function setup_comp(feline)
           icon = ' ',
           priority = 1,
           hl = {
-            fg = colors.yellow
-          }
+            fg = colors.yellow,
+          },
         },
         {
           short_provider = '',
           provider = custom_providers.file_osinfo,
-          left_sep = { str = sep_wide, hl = { bg = diagnostic_bg, fg = "bg" }, always_visible = true, },
+          left_sep = { str = sep_wide, hl = { bg = diagnostic_bg, fg = 'bg' }, always_visible = true },
           hl = {
             fg = colors.purple,
             bg = diagnostic_bg,
@@ -266,14 +265,14 @@ local function setup_comp(feline)
         },
 
         {
-          left_sep = { str = sep_wide, hl = { bg = file_name_bg, fg = git_bg }, always_visible = true, },
+          left_sep = { str = sep_wide, hl = { bg = file_name_bg, fg = git_bg }, always_visible = true },
           provider = 'scroll_bar',
           short_provider = '',
           hl = {
             fg = colors.blue,
             bg = file_name_bg,
-            style = 'bold'
-          }
+            style = 'bold',
+          },
         },
         {
           provider = 'line_percentage',
@@ -283,7 +282,7 @@ local function setup_comp(feline)
           left_sep = { str = ' ', hl = { bg = file_name_bg } },
           hl = {
             bg = file_name_bg,
-            style = 'bold'
+            style = 'bold',
           },
         },
         {
@@ -297,8 +296,8 @@ local function setup_comp(feline)
               hl = {
                 bg = file_name_bg,
                 fg = vi_mode_utils.get_mode_color(),
-                style = 'bold'
-              }
+                style = 'bold',
+              },
             }
           end,
           hl = function()
@@ -306,7 +305,7 @@ local function setup_comp(feline)
               name = vi_mode_utils.get_mode_highlight_name(),
               fg = file_name_bg,
               bg = vi_mode_utils.get_mode_color(),
-              style = 'bold'
+              style = 'bold',
             }
           end,
           right_sep = function()
@@ -314,9 +313,9 @@ local function setup_comp(feline)
               str = icons.block,
               fg = file_name_bg,
               bg = vi_mode_utils.get_mode_color(),
-              style = 'bold'
+              style = 'bold',
             }
-          end
+          end,
         },
       },
     },
@@ -324,12 +323,12 @@ local function setup_comp(feline)
 end
 
 return {
-  "jmcclell/feline.nvim",
+  'jmcclell/feline.nvim',
   dependencies = {
     'lewis6991/gitsigns.nvim',
     'nvim-tree/nvim-web-devicons',
-    "vuki656/package-info.nvim",
-    "naravssu/onedark.nvim"
+    'vuki656/package-info.nvim',
+    'naravssu/onedark.nvim',
   },
   lazy = false,
   config = function()
@@ -352,10 +351,10 @@ return {
         COMMAND = colors.cyan,
         SHELL = colors.green,
         TERM = colors.blue,
-        NONE = colors.yellow
-      }
+        NONE = colors.yellow,
+      },
     }
-    feline.use_theme({
+    feline.use_theme {
       fg = colors.fg,
       bg = colors.bg2,
       black = colors.black,
@@ -369,6 +368,6 @@ return {
       violet = colors.purple,
       white = colors.white,
       yellow = colors.yellow,
-    })
-  end
+    }
+  end,
 }

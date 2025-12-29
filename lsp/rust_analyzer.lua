@@ -4,7 +4,7 @@ return {
       diagnostics = { enable = true },
       check = {
         command = 'clippy',
-      }
-    }
-  }
+      },
+    },
+  },
 }
