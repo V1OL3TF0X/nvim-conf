@@ -40,7 +40,7 @@ return {
       enable = true,
     },
   },
-  config = function(_, opts)
+  config = function()
     require('treesitter-context').setup()
   end,
 }

@@ -12,4 +12,8 @@ return {
     lazy = false,
     dependencies = { 'kamykn/popup-menu.nvim' },
   },
+  {
+    'davidmh/mdx.nvim',
+    dependencies = { 'nvim-treesitter/nvim-treesitter' },
+  },
 }
