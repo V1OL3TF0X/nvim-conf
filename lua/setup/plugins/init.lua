@@ -7,6 +7,7 @@ return {
     ft = { 'html', 'typescriptreact', 'djangohtml', 'javascriptreact', 'php', 'astro' },
   },
   { 'windwp/nvim-ts-autotag', lazy = false },
+  { 'tpope/vim-repeat', lazy = false },
   {
     'kamykn/spelunker.vim',
     lazy = false,
