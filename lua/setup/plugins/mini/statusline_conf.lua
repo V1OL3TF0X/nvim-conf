@@ -8,7 +8,7 @@ function M.setup()
       -- Content for active window
       active = function()
         local mode, mode_hl = statusline.section_mode { trunc_width = 50 }
-        local filename = statusline.section_filename { trunc_width = 140 }
+        local filename = P.section_filename { trunc_width = 140 }
         local location = statusline.section_location { trunc_width = 75 }
         local search = statusline.section_searchcount { trunc_width = 75 }
 
@@ -184,6 +184,15 @@ function P.lsp_section(groups)
         :join ', ',
     },
   })
+end
+P.section_filename = function(args)
+  -- In terminal always use plain name
+  if vim.bo.buftype == 'terminal' then
+    return '%t'
+  end
+  local modified = vim.bo.modified and M.icons.circle .. ' ' or ''
+  local filename = MiniStatusline.is_truncated(args.trunc_width) and '%f' or '%F'
+  return modified .. filename
 end
 M.icons = {
   lsp = '',
