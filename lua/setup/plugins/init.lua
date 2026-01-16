@@ -1,6 +1,5 @@
 return {
   { 'lukas-reineke/indent-blankline.nvim', main = 'ibl' },
-  { 'tpope/vim-surround', lazy = false },
   { 'tpope/vim-abolish', lazy = false },
   {
     'mattn/emmet-vim',

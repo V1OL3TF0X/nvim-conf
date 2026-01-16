@@ -44,11 +44,6 @@ return {
     -- LSP Support
     { 'b0o/schemastore.nvim' },
     { 'neovim/nvim-lspconfig' },
-    -- Autocompletion
-    { 'hrsh7th/nvim-cmp' },
-    { 'hrsh7th/cmp-nvim-lsp' },
-    { 'L3MON4D3/LuaSnip' },
-    { 'mlaursen/vim-react-snippets' },
   },
   config = function()
     require('nvim-treesitter.parsers').gotmpl = {
@@ -60,35 +55,8 @@ return {
       used_by = { 'gohtmltmpl', 'gotexttmpl', 'gotmpl' },
     }
 
-    local cmp = require 'cmp'
-    local cmp_select = { behavior = cmp.SelectBehavior.Select }
-    local cmp_mappings = cmp.mapping.preset.insert {
-      ['<S-Tab>'] = cmp.mapping.select_prev_item(cmp_select),
-      ['<Tab>'] = cmp.mapping.select_next_item(cmp_select),
-      ['<CR>'] = cmp.mapping.confirm { select = true },
-      ['<C-Space>'] = cmp.mapping.complete(),
-    }
-
-    cmp.setup {
-      snippet = {
-        -- REQUIRED - you must specify a snippet engine
-        expand = function(args)
-          --  require('luasnip').lsp_expand(args.body) -- For `luasnip` users.
-          vim.snippet.expand(args.body) -- For native neovim snippets (Neovim v0.10+)
-        end,
-      },
-      mapping = cmp_mappings,
-      window = {
-        completion = cmp.config.window.bordered(),
-        documentation = cmp.config.window.bordered(),
-      },
-      sources = cmp.config.sources {
-        { name = 'nvim_lsp' },
-        { name = 'luasnip' },
-      },
-    }
     vim.lsp.config('*', {
-      capabilities = require('cmp_nvim_lsp').default_capabilities(),
+      capabilities = { textDocument = { hover = true } },
     })
 
     vim.api.nvim_create_autocmd('LspAttach', {
@@ -98,7 +66,7 @@ return {
         -- stylua: ignore start
         vim.keymap.set('n', 'gd', function() vim.lsp.buf.definition() end, opts)
         vim.keymap.set('n', 'gr', function() vim.lsp.buf.references() end, opts)
-        vim.keymap.set('n', 'K', function() vim.lsp.buf.hover() end, opts)
+        vim.keymap.set('n', 'K', function() vim.lsp.buf.hover { border = 'rounded' } end, opts)
         vim.keymap.set('n', '<leader>vws', function() vim.lsp.buf.workspace_symbol() end, opts)
         vim.keymap.set('n', '<leader>vd', function() vim.diagnostic.open_float() end, opts)
         vim.keymap.set('n', '[w', function() vim.diagnostic.jump { count = 1, float = true, severity = { max = 'WARN' } } end, opts)
@@ -111,15 +79,17 @@ return {
         vim.keymap.set('i', '<C-h>', function() vim.lsp.buf.signature_help() end, opts)
         vim.keymap.set('n', '<leader>ih', function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled()) end, opts)
         -- stylua: ignore end
-        if vim.lsp.inline_completion ~= nil then
-          vim.keymap.set('n', '<leader>ic', function()
-            vim.lsp.inline_completion.enable(not vim.lsp.inline_completion.is_enabled())
-          end, opts)
-          vim.keymap.set('i', '<Tab>', function()
-            if not vim.lsp.inline_completion.get() then
-              return '<Tab>'
-            end
-          end, { buffer = evt.buf, expr = true, desc = 'Accept the current inline completion' })
+        local client = vim.lsp.get_client_by_id(evt.data.client_id)
+        if not client then
+          return
+        end
+
+        if client.name == 'eslint' then
+          -- Define a command to organize imports
+          vim.api.nvim_create_autocmd('BufWritePre', {
+            buffer = evt.buf,
+            command = 'LspEslintFixAll',
+          })
         end
       end,
     })
