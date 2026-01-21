@@ -40,23 +40,25 @@ return {
         -- spellchecking colors
         SpelunkerSpellBad = { fg = '$red' },
         SpelunkerComplexOrCompoundWord = { fg = '$orange' },
-
+        -- statusline
         MiniStatuslineReadonly = { fg = '$red', bg = statusline_bg },
         MiniStatuslineFilename = { fg = '$blue', bg = statusline_bg },
-        MiniStatuslineLspinfo = { fg = '$yellow', bg = git_bg },
+        -- section 1 (closest to edge)
+        MiniStatuslineSection1Start = { fg = statusline_bg, bg = git_bg },
+        MiniStatuslineSection1End = { fg = statusline_bg, bg = git_bg },
         MiniStatuslineFileinfo = { fg = '$green', bg = git_bg },
-        MiniStatuslineFileinfo2 = { fg = git_bg, bg = statusline_bg },
         MiniStatuslineGitinfo = { fg = '$purple', bg = git_bg },
         MiniStatuslineGitAdded = { fg = '$green', bg = git_bg },
         MiniStatuslineGitChanged = { fg = '$orange', bg = git_bg },
         MiniStatuslineGitRemoved = { fg = '$red', bg = git_bg },
-        MiniStatuslineGitinfo2 = { fg = git_bg, bg = statusline_bg },
-
-        MiniStatuslineDiagnosticWarn = { fg = '$yellow', bg = diag_bg },
-        MiniStatuslineDiagnosticInfo = { fg = '$blue', bg = diag_bg },
-        MiniStatuslineDiagnosticError = { fg = '$red', bg = diag_bg },
-        MiniStatuslineDiagnosticHint = { fg = '$purple', bg = diag_bg },
-        MiniStatuslineDevinfo2 = { fg = diag_bg, bg = statusline_bg },
+        -- section 2
+        MiniStatuslineSection2Start = { fg = statusline_bg, bg = diag_bg },
+        MiniStatuslineSection2End = { fg = statusline_bg, bg = diag_bg },
+        MiniStatuslineLspinfo = { fg = '$yellow', bg = diag_bg },
+        MiniStatuslineDiagnosticWarn = { fg = '$yellow', bg = git_bg },
+        MiniStatuslineDiagnosticInfo = { fg = '$blue', bg = git_bg },
+        MiniStatuslineDiagnosticError = { fg = '$red', bg = git_bg },
+        MiniStatuslineDiagnosticHint = { fg = '$purple', bg = git_bg },
       },
     }
     require('onedark').load()

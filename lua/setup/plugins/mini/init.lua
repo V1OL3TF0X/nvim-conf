@@ -6,7 +6,11 @@ return {
   version = false,
   lazy = false,
   config = function()
-    require('mini.ai').setup {}
+    require('mini.ai').setup {
+      custom_textobjects = {
+        x = { '[:=]().*()[,;]' },
+      },
+    }
     require('mini.comment').setup {}
     require('mini.completion').setup {
       window = {
@@ -33,7 +37,13 @@ return {
 
     map_multistep('i', '<Tab>', { 'minisnippets_next', 'minisnippets_expand', 'pmenu_next' })
     map_multistep('i', '<S-Tab>', { 'minisnippets_prev', 'pmenu_prev' })
+    map_multistep('i', '<CR>', { 'pmenu_accept', 'minipairs_cr' })
+    local mode = { 'i', 'c', 'x', 's' }
+    mini_keymap.map_combo(mode, 'jk', '<BS><BS><Esc>')
+    -- To not have to worry about the order of keys, also map "kj"
+    mini_keymap.map_combo(mode, 'kj', '<BS><BS><Esc>')
 
     require('setup.plugins.mini.statusline_conf').setup()
+    require 'setup.plugins.mini.breadcrumbs'
   end,
 }

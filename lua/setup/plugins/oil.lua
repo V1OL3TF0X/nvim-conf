@@ -11,10 +11,7 @@ return {
     }
   end,
   -- Optional dependencies
-  dependencies = {
-    'nvim-mini/mini.nvim',
-    'benomahony/oil-git.nvim',
-  },
+  dependencies = { 'nvim-mini/mini.nvim' },
   -- Lazy loading is not recommended because it is very tricky to make it work correctly in all situations.
   lazy = false,
 }

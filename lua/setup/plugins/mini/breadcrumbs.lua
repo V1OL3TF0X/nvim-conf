@@ -1,0 +1,727 @@
+-- credit: https://github.com/ngpong
+local uv = vim.loop
+local bit = require 'bit'
+local icons_lsp_kinds = {
+  Text = { val = '󰉿', hl = 'BlinkCmpKindText' }, -- 󱀍 󰀬  󰉿
+  Method = { val = '󰊕', hl = 'BlinkCmpKindMethod' }, -- 󰊕 󰆧
+  Function = { val = '󰊕', hl = 'BlinkCmpKindFunction' },
+  Constructor = { val = '󰒓', hl = 'BlinkCmpKindConstructor' }, -- 󰒓  
+  Field = { val = '', hl = 'BlinkCmpKindField' }, --  󰜢
+  Variable = { val = '', hl = 'BlinkCmpKindVariable' }, -- 󰀫 󰆦
+  Class = { val = '󰆼', hl = 'BlinkCmpKindClass' }, -- 󱡠 
+  Struct = { val = '󱡠', hl = 'BlinkCmpKindStruct' }, --   󱡠
+  Object = { val = '', hl = 'BlinkCmpKindObject' },
+  Interface = { val = '', hl = 'BlinkCmpKindInterface' },
+  Module = { val = '󰏗', hl = 'BlinkCmpKindModule' }, -- 󰅩
+  Namespace = { val = '󰅴', hl = 'BlinkCmpKindNamespace' }, -- 󰅩
+  Property = { val = '', hl = 'BlinkCmpKindProperty' }, --   󰖷
+  Unit = { val = '󰑭', hl = 'BlinkCmpKindUnit' },
+  Value = { val = '󱀍', hl = 'BlinkCmpKindValue' }, -- 󰎠
+  Number = { val = '󰎠', hl = 'BlinkCmpKindNumber' },
+  Array = { val = '󰅪', hl = 'BlinkCmpKindArray' },
+  Enum = { val = '', hl = 'BlinkCmpKindEnum' },
+  EnumMember = { val = '', hl = 'BlinkCmpKindEnumMember' },
+  Keyword = { val = '󰻾', hl = 'BlinkCmpKindKeyword' }, -- 󰻾 󰌋
+  Key = { val = '󰻾', hl = 'BlinkCmpKindKey' },
+  Snippet = { val = '󰩫', hl = 'BlinkCmpKindSnippet' }, --  󱄽
+  Color = { val = '󰏘', hl = 'BlinkCmpKindColor' },
+  File = { val = '󰈙', hl = 'BlinkCmpKindFile' }, -- 󰈔
+  Reference = { val = '󰈇', hl = 'BlinkCmpKindReference' }, -- 󰬲
+  Folder = { val = '󰉋', hl = 'BlinkCmpKindFolder' },
+  Copilot = { val = '', hl = 'BlinkCmpKindCopilot' },
+  String = { val = '󰉾', hl = 'BlinkCmpKindString' },
+  Constant = { val = '󰏿', hl = 'BlinkCmpKindConstant' },
+  Event = { val = '󱐋', hl = 'BlinkCmpKindEvent' }, -- 󱐋 
+  Operator = { val = '󰆕', hl = 'BlinkCmpKindOperator' }, --  󰪚
+  Type = { val = '', hl = 'BlinkCmpKindType' }, -- 󰆩 󰊄 
+  TypeParameter = { val = '󰊄', hl = 'BlinkCmpKindTypeParameter' }, -- 󰆩 
+  Package = { val = '󰏖', hl = 'BlinkCmpKindPackage' }, -- 󰆦
+  StaticMethod = { val = '󰠄', hl = 'BlinkCmpKindStaticMethod' },
+  Null = { val = '󰢤', hl = 'BlinkCmpKindNull' },
+  Boolean = { val = '◩', hl = 'BlinkCmpKindBoolean' }, -- 󰨙
+  Unknown = { val = '', hl = 'BlinkCmpKindUnknown' },
+}
+
+local Options = {
+  extend = '…',
+  separator = ' ',
+  separator_width = vim.api.nvim_strwidth ' ',
+  eval_interval = 40,
+  lsp = {
+    retry_ttl = 60,
+    retry_interval = 200,
+    update_interval = 350,
+    eval_interval = 40,
+    lsp_kinds = {
+      [1] = icons_lsp_kinds.File,
+      [2] = icons_lsp_kinds.Module,
+      [3] = icons_lsp_kinds.Namespace,
+      [4] = icons_lsp_kinds.Package,
+      [5] = icons_lsp_kinds.Class,
+      [6] = icons_lsp_kinds.Method,
+      [7] = icons_lsp_kinds.Property,
+      [8] = icons_lsp_kinds.Field,
+      [9] = icons_lsp_kinds.Constructor,
+      [10] = icons_lsp_kinds.Enum,
+      [11] = icons_lsp_kinds.Interface,
+      [12] = icons_lsp_kinds.Function,
+      [13] = icons_lsp_kinds.Variable,
+      [14] = icons_lsp_kinds.Constant,
+      [15] = icons_lsp_kinds.String,
+      [16] = icons_lsp_kinds.Number,
+      [17] = icons_lsp_kinds.Boolean,
+      [18] = icons_lsp_kinds.Array,
+      [19] = icons_lsp_kinds.Object,
+      [20] = icons_lsp_kinds.Keyword,
+      [21] = icons_lsp_kinds.Null,
+      [22] = icons_lsp_kinds.EnumMember,
+      [23] = icons_lsp_kinds.Struct,
+      [24] = icons_lsp_kinds.Event,
+      [25] = icons_lsp_kinds.Operator,
+      [26] = icons_lsp_kinds.TypeParameter,
+      Unknown = icons_lsp_kinds.Unknown,
+    },
+  },
+}
+
+local Highlighter = vim.__class
+  .def(function(this)
+    local m_cache = {}
+    function this:draw(txt, hl)
+      local _hl = hl
+      if not _hl then
+        return txt
+      end
+
+      if type(hl) == 'table' then
+        _hl = { 'WBR' }
+        if hl.fg then
+          table.insert(_hl, 'fg' .. hl.fg)
+        end
+        if hl.bg then
+          table.insert(_hl, 'bg' .. hl.bg)
+        end
+        if hl.bold then
+          table.insert(_hl, 'bold')
+        end
+        if hl.italic then
+          table.insert(_hl, 'italic')
+        end
+        _hl = table.concat(_hl, '-'):gsub('#', '')
+
+        if not m_cache[_hl] then
+          m_cache[_hl] = true
+          vim.api.nvim_set_hl(0, _hl, hl)
+        end
+      end
+
+      return '%#' .. _hl .. '#' .. txt .. '%*'
+    end
+  end)
+  :new()
+
+local Item = vim.__class.def(function(this)
+  local m_name, m_icon, m_iconhl
+  function this:__init(_name, _icon, _iconhl)
+    assert(_name and _icon and _iconhl)
+    m_name = _name
+    m_icon = _icon
+    m_iconhl = _iconhl
+  end
+
+  local __eval
+  function this:eval()
+    __eval = string.format('%s %s', this:icon(), this:name())
+    function this:eval()
+      return __eval
+    end
+    return this:eval()
+  end
+
+  local __width
+  function this:width()
+    __width = vim.__str.displaywidth(string.format('%s %s', this:paleicon(), this:name()))
+    function this:width()
+      return __width
+    end
+    return this:width()
+  end
+
+  function this:name()
+    return m_name
+  end
+
+  local __namewidth
+  function this:namewidth()
+    __namewidth = vim.__str.displaywidth(this:name())
+    function this:namewidth()
+      return __namewidth
+    end
+    return this:namewidth()
+  end
+
+  local __icon
+  function this:icon()
+    __icon = Highlighter:draw(m_icon, m_iconhl)
+    function this:icon()
+      return __icon
+    end
+    return this:icon()
+  end
+
+  function this:paleicon()
+    return m_icon
+  end
+
+  local __truncate = {}
+  function this:truncate(len)
+    local t = __truncate[len]
+    if not t then
+      t = {}
+
+      local ___name
+      function t:name()
+        ___name = this:name():sub(1, len) .. Options.extend
+        function t:name()
+          return ___name
+        end
+        return t:name()
+      end
+
+      local ___namewidth
+      function t:namewidth()
+        ___namewidth = vim.__str.displaywidth(t:name())
+        function t:namewidth()
+          return ___namewidth
+        end
+        return t:namewidth()
+      end
+
+      local ___eval
+      function t:eval()
+        ___eval = string.format('%s %s', this:icon(), t:name())
+        function t:eval()
+          return ___eval
+        end
+        return t:eval()
+      end
+
+      local ___width
+      function t:width()
+        ___width = vim.__str.displaywidth(string.format('%s %s', this:paleicon(), t:name()))
+        function t:width()
+          return ___width
+        end
+        return t:width()
+      end
+
+      __truncate[len] = t
+    end
+    return t
+  end
+end)
+
+local LspSymbol = vim.__class.def(function(this)
+  local m_lsp_options = Options.lsp
+
+  local m_items = setmetatable({}, {
+    __index = function(t, k)
+      rawset(t, k, vim.__cache.new(0x100))
+      return rawget(t, k)
+    end,
+  })
+
+  local m_symstat = setmetatable({}, {
+    __index = function(t, k)
+      rawset(t, k, {
+        symbols = {},
+        updating = nil,
+      })
+      return rawget(t, k)
+    end,
+  })
+
+  local get_attachstat
+  function this:__init(__get_attachstat)
+    get_attachstat = __get_attachstat
+
+    vim.__autocmd.on('BufWipeout', function(state)
+      m_symstat[state.buf] = nil
+    end)
+  end
+
+  local strbuffer = require 'string.buffer'
+  local __update, __update_retry, __update_bouncer
+  local __update_leagcy_worker, __update_leagcy_worker_libs
+  __update_bouncer = vim.__bouncer.throttle_trailing(
+    m_lsp_options.update_interval,
+    true,
+    vim.schedule_wrap(function(...)
+      __update(...)
+    end)
+  )
+  __update_retry = function(bufnr, ttl)
+    ttl = ttl or m_lsp_options.retry_ttl
+    vim.defer_fn(function()
+      __update(bufnr, ttl - 1)
+    end, m_lsp_options.retry_interval)
+  end
+  __update_leagcy_worker_libs = string.dump(function()
+    return require 'string.buffer', require 'setup.utils.tbl'
+  end)
+  __update_leagcy_worker = uv.new_work(function(bufnr, symbols_bc, libs_bc)
+    local libs = loadstring(libs_bc)
+    local strbuffer, tbl = libs()
+
+    local symbols = strbuffer.decode(symbols_bc)
+
+    local function compare_f(lhs, rhs)
+      local l_range = lhs.location.range
+      local r_range = rhs.location.range
+
+      if l_range.start.line < r_range.start.line then
+        return true
+      elseif l_range.start.line == r_range.start.line then
+        if l_range.start.character < r_range.start.character then
+          return true
+        elseif l_range.start.character == r_range.start.character then
+          if l_range['end'].line < r_range['end'].line then
+            return true
+          elseif l_range['end'].line == r_range['end'].line then
+            return l_range['end'].character < r_range['end'].character
+          else
+            return false
+          end
+        else
+          return false
+        end
+      else
+        return false
+      end
+    end
+    table.sort(symbols, compare_f)
+
+    local search, childs =
+      setmetatable({}, {
+        __index = function(t, k)
+          rawset(t, k, {})
+          return rawget(t, k)
+        end,
+      }), {}
+    tbl.remove_iter(symbols, function(t, i)
+      local sym = t[i]
+      sym.range = sym.location.range
+      sym.location = nil
+
+      table.insert(search[sym.name], sym)
+
+      if sym.containerName then
+        table.insert(childs, sym)
+        return false
+      end
+
+      return true
+    end)
+
+    local function range_contain(range1, range2)
+      local range1_start, range1_ended = range1['start'], range1['end']
+      local range2_start, range2_ended = range2['start'], range2['end']
+
+      return (
+        range2_start.line > range1_start.line
+        or (range2_start.line == range1_start.line and range2_start.character > range1_start.character)
+      )
+        and (range2_start.line < range1_ended.line or (range2_start.line == range1_ended.line and range2_start.character < range1_ended.character))
+        and (range2_ended.line > range1_start.line or (range2_ended.line == range1_start.line and range2_ended.character > range1_start.character))
+        and (
+          range2_ended.line < range1_ended.line
+          or (range2_ended.line == range1_ended.line and range2_ended.character < range1_ended.character)
+        )
+    end
+    for _, child in ipairs(childs) do
+      for _, parent in ipairs(search[child.containerName]) do
+        local range_parent = parent.range
+        local range_child = child.range
+
+        if range_contain(range_parent, range_child) then
+          if not parent.children then
+            local children = {}
+            parent.children = children
+          end
+          table.insert(parent.children, child)
+        end
+      end
+      child.containerName = nil
+    end
+
+    ---@diagnostic disable-next-line
+    return bufnr, strbuffer.encode(symbols)
+  end, function(bufnr, symbols_bc)
+    local symbols = strbuffer.decode(symbols_bc)
+
+    local state = m_symstat[bufnr]
+    state.symbols = symbols
+    state.updating = nil
+  end)
+  __update = function(bufnr, ttl)
+    if not vim.__buf.is_valid(bufnr) then
+      return
+    end
+
+    local state = m_symstat[bufnr]
+
+    if not ttl and state.updating then
+      return
+    end
+
+    if ttl and ttl <= 0 then
+      state.updating = nil
+      return
+    end
+
+    state.updating = true
+
+    if not get_attachstat(bufnr) then
+      __update_retry(bufnr, ttl)
+      return
+    end
+
+    get_attachstat(bufnr).client:request('textDocument/documentSymbol', {
+      textDocument = {
+        uri = vim.uri_from_bufnr(bufnr),
+      },
+    }, function(err, symbols, _)
+      if not vim.__buf.is_valid(bufnr) then
+        return
+      end
+
+      if err or not get_attachstat(bufnr) or not symbols or not symbols[1] then
+        __update_retry(bufnr, ttl)
+        return
+      end
+
+      if (symbols[1] and symbols[1].range) or not symbols[1] then
+        state.symbols = symbols
+        state.updating = nil
+      else
+        __update_leagcy_worker:queue(bufnr, strbuffer.encode(symbols), __update_leagcy_worker_libs)
+      end
+    end, bufnr)
+  end
+  function this:update(bufnr)
+    __update_bouncer(bufnr)
+  end
+
+  local function __eval(bufnr, cursor, symbols, items)
+    if not symbols then
+      symbols = m_symstat[bufnr].symbols
+    end
+
+    if not items then
+      items = {}
+    end
+
+    local len = #symbols
+    if len == 0 then
+      return items
+    end
+
+    local lsp_kinds = m_lsp_options.lsp_kinds
+
+    local lnum, col = cursor[1], cursor[2]
+
+    local low, high = 1, len
+    while low <= high do
+      local mid = bit.rshift(low + high, 1)
+
+      local symbol = symbols[mid]
+
+      local range = symbol.range
+      local range_start = range['start']
+      local range_ended = range['end']
+
+      if
+        (lnum > range_start.line or (lnum == range_start.line and col >= range_start.character))
+        and (lnum < range_ended.line or (lnum == range_ended.line and col <= range_ended.character))
+      then
+        local kind = symbol.kind
+        local name = symbol.name
+
+        local cache = m_items[kind]
+
+        local item = cache:get(name)
+        if not item then
+          local k = lsp_kinds[kind] or lsp_kinds.Unknown
+          item = Item:new(name, k.val, k.hl)
+
+          cache:set(name, item)
+        end
+
+        table.insert(items, item)
+        if symbol.children then
+          __eval(bufnr, cursor, symbol.children, items)
+        end
+
+        return items
+      elseif
+        (lnum < range_start.line or (lnum == range_start.line and col < range_start.character))
+        and (lnum < range_ended.line or (lnum == range_ended.line and col < range_ended.character))
+      then
+        high = mid - 1
+      elseif
+        (lnum > range_start.line or (lnum == range_start.line and col > range_start.character))
+        and (lnum > range_ended.line or (lnum == range_ended.line and col > range_ended.character))
+      then
+        low = mid + 1
+      else
+        return items
+      end
+    end
+  end
+  function this:eval(winid, bufnr)
+    local cursor = vim.__cursor.norm_get(winid)
+    cursor = { cursor[1] - 1, cursor[2] }
+    return __eval(bufnr, cursor)
+  end
+end)
+
+local LspSource = vim.__class.def(function(this)
+  local m_attachstat = {}
+
+  local m_symhandler = LspSymbol:new(function(bufnr)
+    return m_attachstat[bufnr]
+  end)
+
+  function this:__init()
+    vim.__autocmd.on('LspAttach', function(state)
+      local bufnr = state.buf
+      local client_id = state.data.client_id
+
+      local cli = vim.lsp.get_client_by_id(client_id)
+      if not cli or not cli:supports_method 'textDocument/documentSymbol' then
+        return
+      end
+
+      if m_attachstat[bufnr] then
+        return
+      end
+
+      m_symhandler:update(bufnr)
+
+      local group = vim.__autocmd.augroup('wb-lspsource-' .. tostring(bufnr))
+      group:on({ 'BufWritePost', 'TextChanged' }, function()
+        m_symhandler:update(bufnr)
+      end, { buffer = bufnr })
+      group:on({ 'ModeChanged' }, function()
+        if state.match == 'i:n' then
+          m_symhandler:update(bufnr)
+        end
+      end, { buffer = bufnr })
+
+      m_attachstat[bufnr] = {
+        augroup = group,
+        client = cli,
+      }
+    end)
+
+    vim.__autocmd.on('LspDetach', function(state)
+      local bufnr = state.buf
+
+      if not m_attachstat[bufnr] then
+        return
+      end
+
+      m_attachstat[bufnr].augroup:del()
+      m_attachstat[bufnr] = nil
+    end)
+  end
+
+  function this:eval(winid, bufnr)
+    return m_symhandler:eval(winid, bufnr)
+  end
+end)
+
+local PathSource = vim.__class.def(function(this)
+  local m_items = vim.__cache.new(0x100)
+
+  function this:eval(winid, bufnr)
+    local fpath = vim.__buf.name(bufnr)
+    local root = vim.__path.cwd()
+
+    local items = m_items:get(fpath)
+    if items then
+      return items
+    else
+      items = {}
+      m_items:set(fpath, items)
+    end
+
+    local p = fpath
+    while p and p ~= root do
+      local d = vim.__path.dirname(p)
+      if p == d then
+        break
+      end -- "/" "."
+
+      local basename = vim.__path.basename(p)
+      if basename ~= '' then
+        local icon, icon_hl
+        if basename == 'oil:' then
+          icon, icon_hl = _G.MiniIcons.get('filetype', 'oil')
+        elseif vim.fn.isdirectory(p) == 1 then
+          icon, icon_hl = _G.MiniIcons.get('directory', p)
+        elseif p:sub(1, 4) == 'oil:' then
+          icon, icon_hl = _G.MiniIcons.get('directory', p:sub(6, -1))
+        else
+          icon, icon_hl = _G.MiniIcons.get('file', basename)
+        end
+        table.insert(items, Item:new(basename, icon, icon_hl))
+      end
+      p = d
+    end
+
+    vim.iter(items):rev():totable()
+    return items
+  end
+end)
+
+local Winbar = vim.__class.def(function(this)
+  local m_sources = {}
+  local m_evalcache = {}
+
+  function this:__init()
+    local function attach(winid, bufnr)
+      if vim.wo[winid].winbar ~= '' then
+        return
+      end
+
+      local ft = vim.__buf.filetype(bufnr)
+      local bt = vim.__buf.buftype(bufnr)
+      if
+        vim.__filter.contain_fts(ft)
+        or vim.__filter.contain_bts(bt)
+        or vim.__buf.is_unnamed(bufnr)
+        or vim.__win.is_float(winid)
+        or not vim.__buf.is_valid(bufnr)
+        or not vim.__win.is_valid(winid)
+      then
+        vim.wo[winid].winbar = ''
+        return
+      end
+      vim.wo[winid].winbar =
+        '%{%(nvim_get_current_win()==#g:actual_curwin) ? v:lua.MiniWinbar.active() : v:lua.MiniWinbar.inactive()%}'
+    end
+    for _, winid in ipairs(vim.__win.all()) do
+      local bufnr = vim.__buf.number(winid)
+      attach(winid, bufnr)
+    end
+
+    local group = vim.__autocmd.augroup 'wb-global'
+    group:on({ 'BufWinEnter', 'BufWritePost' }, function(args)
+      attach(vim.__win.current(), args.buf)
+    end)
+    group:on({ 'WinClosed' }, function(args)
+      local winid = tonumber(args.file)
+      if not winid then
+        return
+      end
+
+      local cache = m_evalcache[winid]
+      if not cache then
+        return
+      end
+
+      cache.timer:stop()
+      cache.timer:close()
+      m_evalcache[winid] = nil
+    end)
+
+    table.insert(m_sources, PathSource:new())
+    table.insert(m_sources, LspSource:new())
+  end
+
+  function this:eval(winid, bufnr)
+    local cache = m_evalcache[winid]
+    if not cache then
+      cache = { str = nil, timer = uv.new_timer() }
+      m_evalcache[winid] = cache
+    end
+
+    local evalstr = cache.str
+    if evalstr then
+      return evalstr
+    end
+
+    local items, item_size, linewidth = {}, 0, 0
+    for _, source in ipairs(m_sources) do
+      for _, item in ipairs(source:eval(winid, bufnr) or {}) do
+        linewidth = linewidth + item:width()
+        item_size = item_size + 1
+        table.insert(items, item)
+      end
+    end
+    linewidth = linewidth + 2 + (Options.separator_width * (item_size - 1))
+
+    local win_width = vim.api.nvim_win_get_width(winid)
+    local delta = linewidth - win_width
+    local evalstrs = {}
+    for _, item in ipairs(items) do
+      if delta <= 0 then
+        table.insert(evalstrs, item:eval())
+      else
+        local namewidth = item:namewidth()
+        local miniwidth = item:truncate(1):namewidth()
+        if namewidth > miniwidth then
+          local sub = math.max(1, namewidth - delta - 1)
+
+          local truncate = item:truncate(sub)
+          table.insert(evalstrs, truncate:eval())
+          delta = delta - namewidth + truncate:namewidth()
+        end
+      end
+    end
+
+    evalstr = string.format(' %s ', table.concat(evalstrs, Options.separator))
+
+    cache.str = evalstr
+    cache.timer:start(Options.eval_interval, 0, function()
+      local cache0 = m_evalcache[winid]
+      if not cache0 then
+        return
+      end
+      cache0.str = nil
+      cache0.timer:stop()
+    end)
+
+    return evalstr
+  end
+end)
+
+local wb = Winbar:new()
+local M = {
+  inactive = function()
+    local sl = require 'mini.statusline'
+    local groups = { '%=' }
+    sl.diagnostics_sections(groups, true, 'MiniStatuslineSection1', sl.separators.right.start, ' ')
+    return sl.combine_groups(groups)
+  end,
+  active = function()
+    local winid = vim.__win.current()
+    local bufnr = vim.__buf.current()
+    local sl = require 'mini.statusline'
+    local groups = {}
+    table.insert(groups, wb:eval(winid, bufnr))
+    table.insert(groups, '%=')
+    local lsp_section = sl.section_lsp()
+    if lsp_section ~= nil then
+      table.insert(groups, { hl = 'MiniStatuslineSection2Start', strings = { sl.separators.right.start } })
+      table.insert(groups, sl.section_lsp())
+      table.insert(groups, { hl = 'MiniStatuslineSection2End', strings = { sl.separators.right.close } })
+    end
+    sl.diagnostics_sections(groups, false, 'MiniStatuslineSection1', sl.separators.right.start, ' ')
+
+    return sl.combine_groups(groups)
+  end,
+}
+_G.MiniWinbar = M
+return M

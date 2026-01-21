@@ -13,6 +13,7 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require 'setup.set'
+require 'setup.utils'
 require('lazy').setup('setup.plugins', {
   change_detection = {
     enabled = true,
@@ -21,20 +22,15 @@ require('lazy').setup('setup.plugins', {
 })
 require 'setup.remaps'
 
-local augroup = vim.api.nvim_create_augroup
-local autocmd = vim.api.nvim_create_autocmd
+local yank_group = vim.__autocmd.augroup 'HighlightYank'
 
-local yank_group = augroup('HighlightYank', {})
-
-autocmd('TextYankPost', {
-  group = yank_group,
+yank_group:on('TextYankPost', function()
+  vim.highlight.on_yank {
+    higroup = 'IncSearch',
+    timeout = 40,
+  }
+end, {
   pattern = '*',
-  callback = function()
-    vim.highlight.on_yank {
-      higroup = 'IncSearch',
-      timeout = 40,
-    }
-  end,
 })
 
 vim.cmd [[ autocmd BufRead,BufNewFile *.askama set filetype=htmldjango]]
