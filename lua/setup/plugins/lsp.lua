@@ -63,12 +63,34 @@ return {
       callback = function(evt)
         local opts = { buffer = evt.buf, remap = false }
 
+        vim.keymap.set('n', 'gD', function()
+          vim.lsp.buf.definition {
+            on_list = function(options)
+              -- if there are multiple items, warn the user
+              if #options.items > 1 then
+                vim.notify('Multiple items found, opening first one', vim.log.levels.WARN)
+              end
+
+              -- Open the first item in a vertical split
+              local item = options.items[1]
+              local cmd = 'vsplit +' .. item.lnum .. ' ' .. item.filename .. '|' .. 'normal ' .. item.col .. '|'
+
+              vim.cmd(cmd)
+            end,
+          }
+        end, opts)
+        vim.keymap.set('n', '<leader>vd', function()
+          if vim.bo.filetype == 'typescript' or vim.bo.filetype == 'typescriptreact' then
+            vim.cmd.PrettyTsError()
+          else
+            vim.diagnostic.open_float()
+          end
+        end, opts)
         -- stylua: ignore start
-        vim.keymap.set('n', 'gd', function() vim.lsp.buf.definition() end, opts)
+        vim.keymap.set('n', 'gd', function() vim.lsp.buf.definition({ reuse_win = true }) end, opts)
         vim.keymap.set('n', 'gr', function() vim.lsp.buf.references() end, opts)
         vim.keymap.set('n', 'K', function() vim.lsp.buf.hover { border = 'rounded' } end, opts)
         vim.keymap.set('n', '<leader>vws', function() vim.lsp.buf.workspace_symbol() end, opts)
-        vim.keymap.set('n', '<leader>vd', function() vim.diagnostic.open_float() end, opts)
         vim.keymap.set('n', '[w', function() vim.diagnostic.jump { count = 1, float = true, severity = { max = 'WARN' } } end, opts)
         vim.keymap.set('n', ']w', function() vim.diagnostic.jump { count = -1, float = true, severity = { max = 'WARN' } } end, opts)
         vim.keymap.set('n', '[d', function() vim.diagnostic.jump { count = 1, float = true, severity = 'ERROR' } end, opts)

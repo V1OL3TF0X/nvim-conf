@@ -6,6 +6,7 @@ return {
     restricted_keys = {
       J = 'v',
       K = 'v',
+      ['<C-P>'] = false,
     },
     hints = {
       ['%D1[JK]'] = {

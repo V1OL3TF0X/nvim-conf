@@ -6,9 +6,13 @@ return {
   version = false,
   lazy = false,
   config = function()
+    local gen_spec = require('mini.ai').gen_spec
     require('mini.ai').setup {
       custom_textobjects = {
         x = { '[:=]().*()[,;]' },
+        P = { '%.().-%b()()[ .;,]' },
+        -- Function definition (needs treesitter queries with these captures)
+        F = gen_spec.treesitter { a = '@function.outer', i = '@function.inner' },
       },
     }
     require('mini.comment').setup {}
@@ -45,5 +49,17 @@ return {
 
     require('setup.plugins.mini.statusline_conf').setup()
     require 'setup.plugins.mini.breadcrumbs'
+
+    local mini_pick = require 'mini.pick'
+    mini_pick.setup {}
+
+    vim.keymap.set('n', '<leader>pb', mini_pick.builtin.buffers)
+    vim.keymap.set('n', '<leader>ph', mini_pick.builtin.help)
+    vim.keymap.set('n', '<C-p>', function()
+      mini_pick.builtin.files { tool = 'git' }
+    end)
+    vim.keymap.set('n', '<leader>ps', function()
+      mini_pick.builtin.grep_live { tool = 'git' }
+    end)
   end,
 }

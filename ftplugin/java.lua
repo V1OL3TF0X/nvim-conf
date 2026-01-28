@@ -133,7 +133,7 @@ local config = {
     },
   },
   -- Needed for auto-completion with method signatures and placeholders
-  capabilities = require('cmp_nvim_lsp').default_capabilities(),
+  capabilities = require('mini.completion').get_lsp_capabilities(),
   flags = {
     allow_incremental_sync = true,
   },
@@ -147,8 +147,8 @@ vim.opt_local.tabstop = 4
 vim.opt_local.shiftwidth = 4
 -- Needed for debugging
 config['on_attach'] = function(client, bufnr)
-  jdtls.setup_dap { hotcodereplace = 'auto' }
-  require('jdtls.dap').setup_dap_main_class_configs()
+  -- jdtls.setup_dap { hotcodereplace = 'auto' }
+  -- require('jdtls.dap').setup_dap_main_class_configs()
 end
 
 -- This starts a new client & server, or attaches to an existing client & server based on the `root_dir`.
