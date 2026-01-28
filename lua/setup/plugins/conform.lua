@@ -16,7 +16,7 @@ vim.api.nvim_create_user_command('FormatEnable', function()
 end, {
   desc = 'Re-enable autoformat-on-save',
 })
-local js_like_formatters = { 'prettier', stop_after_first = true };
+local js_like_formatters = { 'prettier', stop_after_first = true }
 local function use_local_and_global_config(roots, name)
   require('conform.formatters.' .. name).args = function(self, ctx)
     local args = { '--stdin-filepath', '$FILENAME' }
@@ -24,11 +24,11 @@ local function use_local_and_global_config(roots, name)
     local localConfig = vim.fs.find(roots, {
       upward = true,
       path = ctx.dirname,
-      type = 'file'
+      type = 'file',
     })[1]
     local globalConfig = vim.fs.find(roots, {
-      path = vim.fn.stdpath('config'),
-      type = 'file'
+      path = vim.fn.stdpath 'config',
+      type = 'file',
     })[1]
     local disableGlobalConfig = os.getenv('DISABLE_GLOBAL_' .. string.upper(name) .. '_CONFIG')
 
@@ -97,9 +97,9 @@ return {
     end,
     format_after_save = function(bufnr)
       if
-          not slow_format_filetypes[vim.bo[bufnr].filetype]
-          or vim.g.disable_autoformat
-          or vim.b[bufnr].disable_autoformat
+        not slow_format_filetypes[vim.bo[bufnr].filetype]
+        or vim.g.disable_autoformat
+        or vim.b[bufnr].disable_autoformat
       then
         return
       end
@@ -109,8 +109,10 @@ return {
   config = function(_, opts)
     require('conform').setup(opts)
     -- Customize prettier args
-    use_local_and_global_config({ '.prettierrc', '.prettierrc.json', 'prettier.config.js', '.prettierrc.toml' },
-      'prettier');
+    use_local_and_global_config(
+      { '.prettierrc', '.prettierrc.json', 'prettier.config.js', '.prettierrc.toml' },
+      'prettier'
+    )
     use_local_and_global_config({ 'biome.json', 'biome.jsonc' }, 'biome')
   end,
 }
