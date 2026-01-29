@@ -39,7 +39,7 @@ return {
     mini_keymap.setup {}
     local map_multistep = mini_keymap.map_multistep
 
-    map_multistep('i', '<Tab>', { 'minisnippets_next', 'minisnippets_expand', 'pmenu_next' })
+    map_multistep('i', '<Tab>', { 'pmenu_next', 'minisnippets_next', 'minisnippets_expand' })
     map_multistep('i', '<S-Tab>', { 'minisnippets_prev', 'pmenu_prev' })
     map_multistep('i', '<CR>', { 'pmenu_accept', 'minipairs_cr' })
     local mode = { 'i', 'c', 'x', 's' }
@@ -56,7 +56,8 @@ return {
     vim.keymap.set('n', '<leader>pb', mini_pick.builtin.buffers)
     vim.keymap.set('n', '<leader>ph', mini_pick.builtin.help)
     vim.keymap.set('n', '<C-p>', function()
-      mini_pick.builtin.files { tool = 'git' }
+      local tool = #vim.fs.find('.git', { type = 'directory', upward = true }) > 0 and 'git' or 'rg'
+      mini_pick.builtin.files { tool = tool }
     end)
     vim.keymap.set('n', '<leader>ps', function()
       mini_pick.builtin.grep_live { tool = 'git' }

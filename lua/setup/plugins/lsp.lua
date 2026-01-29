@@ -55,7 +55,7 @@ return {
       used_by = { 'gohtmltmpl', 'gotexttmpl', 'gotmpl' },
     }
 
-    vim.lsp.config('*', {
+    vim.lsp.config('ts_ls', {
       capabilities = { textDocument = { hover = true } },
     })
 

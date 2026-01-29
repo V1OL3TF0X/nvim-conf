@@ -42,6 +42,9 @@ function M.setup()
         if filetype == 'oil' then
           filename = ' %f '
         end
+        if vim.o.modified then
+          filename = filename .. ' ' .. M.icons.circle
+        end
         table.insert(groups, { hl = 'MiniStatuslineFilename', strings = { filename } })
         table.insert(groups, '%=') -- End left alignment
 
@@ -76,7 +79,12 @@ function M.setup()
         if vim.bo.readonly then
           table.insert(groups, { hl = 'MiniStatuslineReadonly', strings = { ' ', M.icons.locker } })
         end
-        table.insert(groups, { hl = 'MiniStatuslineFilename', strings = { ' %f ' } })
+        local filename = ' %f '
+        if vim.o.modified then
+          filename = filename .. M.icons.circle
+        end
+        table.insert(groups, { hl = 'MiniStatuslineFilename', strings = { filename } })
+
         return statusline.combine_groups(groups)
       end,
     },
