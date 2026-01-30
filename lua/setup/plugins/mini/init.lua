@@ -60,7 +60,8 @@ return {
       mini_pick.builtin.files { tool = tool }
     end)
     vim.keymap.set('n', '<leader>ps', function()
-      mini_pick.builtin.grep_live { tool = 'git' }
+      local tool = #vim.fs.find('.git', { type = 'directory', upward = true }) > 0 and 'git' or 'rg'
+      mini_pick.builtin.grep_live { tool = tool }
     end)
   end,
 }
