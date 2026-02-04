@@ -59,6 +59,11 @@ return {
         MiniStatuslineDiagnosticInfo = { fg = '$blue', bg = git_bg },
         MiniStatuslineDiagnosticError = { fg = '$red', bg = git_bg },
         MiniStatuslineDiagnosticHint = { fg = '$purple', bg = git_bg },
+
+        -- noice info
+        MiniStatuslineCommand = { fg = '$green', bg = statusline_bg },
+        MiniStatuslineMode = { fg = '$orange', bg = statusline_bg },
+        MiniStatuslineSearch = { fg = '$blue', bg = statusline_bg },
       },
     }
     require('onedark').load()
@@ -71,5 +76,8 @@ return {
     vim.cmd [[hi MiniStatuslineGitAdded gui=bold]]
     vim.cmd [[hi MiniStatuslineGitChanged gui=bold]]
     vim.cmd [[hi MiniStatuslineGitRemoved gui=bold]]
+    vim.cmd [[hi MiniStatuslineCommand gui=bold]]
+    vim.cmd [[hi MiniStatuslineMode    gui=bold]]
+    vim.cmd [[hi MiniStatuslineSearch  gui=bold]]
   end,
 }

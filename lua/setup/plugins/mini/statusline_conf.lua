@@ -48,6 +48,21 @@ function M.setup()
         table.insert(groups, { hl = 'MiniStatuslineFilename', strings = { filename } })
         table.insert(groups, '%=') -- End left alignment
 
+        local components = require('noice').api.status
+        local actual = vim
+          .iter({ 'search', 'mode', 'command' })
+          :filter(function(component)
+            return components[component].has()
+              and (component ~= 'mode' or components[component].get():sub(0, 2) ~= '--')
+          end)
+          :map(function(component)
+            return '%#MiniStatusline' .. vim.__str.capitalize(component) .. '#' .. components[component].get()
+          end)
+          :join ' '
+        if actual ~= '' then
+          table.insert(groups, actual .. ' ')
+        end
+
         table.insert(groups, { hl = 'MiniStatuslineSection1Start', strings = { M.sep.right.start } })
         if not statusline.is_truncated(140) and vim.bo.buftype == '' then
           filetype = filetype .. '/' .. tostring(vim.bo.fileencoding or vim.bo.encoding):upper()
