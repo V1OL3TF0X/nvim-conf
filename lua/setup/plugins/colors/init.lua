@@ -10,7 +10,7 @@ return {
   lazy = false,
   config = function()
     local themes = {
-      onedark = require 'setup.plugins.colors.onedark',
+      onedark = vim.__lazy.require 'setup.plugins.colors.onedark',
       kanagawa = vim.__lazy.require 'setup.plugins.colors.kanagawa',
       molokai = vim.__lazy.require 'setup.plugins.colors.molokai',
       catppuccin = vim.__lazy.require 'setup.plugins.colors.catppuccin',
@@ -59,6 +59,11 @@ return {
           :totable()
       end,
     })
-    themes.onedark.load()
+    local theme = vim.env.NVIM_COLORSCHEME
+    print(vim.inspect(theme))
+    if not theme or not vim.tbl_contains(vim.tbl_keys(themes), theme) then
+      theme = 'onedark'
+    end
+    themes[theme].load()
   end,
 }
