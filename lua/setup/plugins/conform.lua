@@ -74,6 +74,7 @@ return {
       djangohtml = js_like_formatters,
       java = { 'jdtls' },
       lua = { 'stylua' },
+      yaml = { 'yamlfix' },
     },
     format_on_save = function(bufnr)
       -- Disable autoformat for files in a certain path
