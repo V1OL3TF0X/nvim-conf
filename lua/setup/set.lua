@@ -35,10 +35,10 @@ vim.opt.signcolumn = 'yes'
 vim.opt.cc = '80'
 vim.opt.list = true
 vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
-vim.opt.winborder = 'single'
-if vim.fn.has 'nvim-0.12' == 1 then
-  vim.opt.pumborder = 'single'
-end
+--vim.opt.winborder = 'single'
+-- if vim.fn.has 'nvim-0.12' == 1 then
+--   vim.opt.pumborder = 'single'
+-- end
 
 -- font options
 vim.g.have_nerd_font = true

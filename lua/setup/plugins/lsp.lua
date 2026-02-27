@@ -55,10 +55,6 @@ return {
       used_by = { 'gohtmltmpl', 'gotexttmpl', 'gotmpl' },
     }
 
-    vim.lsp.config('ts_ls', {
-      capabilities = { textDocument = { hover = true } },
-    })
-
     vim.api.nvim_create_autocmd('LspAttach', {
       callback = function(evt)
         local opts = { buffer = evt.buf, remap = false }
@@ -91,10 +87,10 @@ return {
         vim.keymap.set('n', 'gr', function() vim.lsp.buf.references() end, opts)
         vim.keymap.set('n', 'K', function() vim.lsp.buf.hover { border = 'rounded' } end, opts)
         vim.keymap.set('n', '<leader>vws', function() vim.lsp.buf.workspace_symbol() end, opts)
-        vim.keymap.set('n', '[w', function() vim.diagnostic.jump { count = 1, float = true, severity = { max = 'WARN' } } end, opts)
-        vim.keymap.set('n', ']w', function() vim.diagnostic.jump { count = -1, float = true, severity = { max = 'WARN' } } end, opts)
-        vim.keymap.set('n', '[d', function() vim.diagnostic.jump { count = 1, float = true, severity = 'ERROR' } end, opts)
-        vim.keymap.set('n', ']d', function() vim.diagnostic.jump { count = -1, float = true, severity = 'ERROR' } end, opts)
+        vim.keymap.set('n', '[w', function() vim.diagnostic.jump { count = 1, float = true, severity = { max = vim.diagnostic.severity.WARN } } end, opts)
+        vim.keymap.set('n', ']w', function() vim.diagnostic.jump { count = -1, float = true, severity = { max = vim.diagnostic.severity.WARN } } end, opts)
+        vim.keymap.set('n', '[d', function() vim.diagnostic.jump { count = 1, float = true, severity = vim.diagnostic.severity.ERROR } end, opts)
+        vim.keymap.set('n', ']d', function() vim.diagnostic.jump { count = -1, float = true, severity = vim.diagnostic.severity.ERROR } end, opts)
         vim.keymap.set('n', '<leader>.', function() vim.lsp.buf.code_action { apply = true } end, opts)
         vim.keymap.set('n', '<leader>vrr', function() vim.lsp.buf.references() end, opts)
         vim.keymap.set('n', '<leader>vrn', function() vim.lsp.buf.rename() end, opts)
@@ -119,6 +115,8 @@ return {
     require('mason').setup {}
     require('mason-tool-installer').setup {
       ensure_installed = {
+        'js-debug-adapter',
+        'chrome-debug-adapter',
         'java-debug-adapter',
         'java-test',
       },
@@ -126,6 +124,9 @@ return {
     vim.api.nvim_command 'MasonToolsInstall'
 
     local lua_opts = nvim_lua_config()
+    vim.lsp.config('htmx', {
+      filetypes = { 'html', 'djangohtml', 'astro', 'astro-markdown', 'templ', 'askama' },
+    })
     vim.lsp.config('lua_ls', lua_opts)
     vim.lsp.config('jsonls', {
       settings = {

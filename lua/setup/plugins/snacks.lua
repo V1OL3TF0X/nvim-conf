@@ -5,9 +5,19 @@ return {
   ---@class snacks.Config
   opts = function()
     -- stylua: ignore start
-    vim.keymap.set('n', '<leader>gb', function() require('snacks').git.blame_line() end)
-    vim.keymap.set('n', '<leader>gg', function() require('snacks').lazygit.open() end)
+    vim.keymap.set('n', '<leader>gb', function() Snacks.git.blame_line() end)
+    vim.keymap.set('n', '<leader>lg', function() Snacks.lazygit.open() end)
+    vim.keymap.set('n', '<leader>lt', function ()
+      Snacks.terminal(nil, { win = { position = "float" }} )
+    end)
     -- stylua: ignore end
+    vim.keymap.set('n', '<leader>ld', function()
+      Snacks.terminal('lazydocker', {
+        win = {
+          style = 'lazygit',
+        },
+      })
+    end)
     return {
       bigfile = {
         enabled = true,
@@ -25,6 +35,11 @@ return {
       lazygit = {
         enabled = true,
         win = { width = 0.9, height = 0.9 },
+        config = {
+          gui = {
+            border = 'single',
+          },
+        },
       },
       gitbrowse = { enabled = true },
       notifier = { enabled = true },

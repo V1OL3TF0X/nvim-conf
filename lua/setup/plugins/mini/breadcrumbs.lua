@@ -92,7 +92,6 @@ local Highlighter = vim.__class
       if not _hl then
         return txt
       end
-
       if type(hl) == 'table' then
         _hl = { 'WBR' }
         if hl.fg then
@@ -113,8 +112,9 @@ local Highlighter = vim.__class
           m_cache[_hl] = true
           vim.api.nvim_set_hl(0, _hl, hl)
         end
+      else
+        _hl = vim.__icons.combine_hl(_hl, 'MiniStatuslineCommand', 'OnSL')
       end
-
       return '%#' .. _hl .. '#' .. txt .. '%*'
     end
   end)

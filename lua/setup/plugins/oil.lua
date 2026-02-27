@@ -3,6 +3,7 @@ return {
   ---@module 'oil'
   opts = function()
     vim.keymap.set('n', '<leader>pv', '<cmd>vert Oil<CR>')
+    vim.keymap.set('n', '<leader>e', ':Oil<CR>')
     ---@type oil.SetupOpts
     return {
       keymaps = {

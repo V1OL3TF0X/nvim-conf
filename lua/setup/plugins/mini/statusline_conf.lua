@@ -1,6 +1,5 @@
 local M = {}
 local P = {}
-local icon_hl_cache = {}
 function M.setup()
   local statusline = require 'mini.statusline'
   statusline.setup {
@@ -12,30 +11,25 @@ function M.setup()
         local location = statusline.section_location { trunc_width = 75 }
         local search = statusline.section_searchcount { trunc_width = 75 }
         local filetype = vim.bo.filetype
-        local icon, hl = require('mini.icons').get('filetype', filetype)
+        local icon, hl = MiniIcons.get('filetype', filetype)
 
         local groups = {
           { hl = mode_hl, strings = { ' ' .. mode:upper() .. M.sep.left.close } },
           '%<', -- Mark general truncate point
         }
         if vim.b.gitsigns_status_dict ~= nil or vim.b.gitsigns_head ~= nil then
-          table.insert(groups, { hl = 'MiniStatuslineSection1Start', strings = { M.icons.slant_right_2 } })
+          table.insert(groups, { hl = 'MiniStatuslineSection1Start', strings = { vim.__icons.slant_right_2 } })
           P.git_section(groups, statusline)
           table.insert(groups, { hl = 'MiniStatuslineSection1End', strings = { M.sep.left.close } })
           table.insert(groups, '%<') -- Mark general truncate point
         end
 
         if vim.bo.readonly then
-          table.insert(groups, { hl = 'MiniStatuslineReadonly', strings = { ' ', M.icons.locker } })
+          table.insert(groups, { hl = 'MiniStatuslineReadonly', strings = { ' ', vim.__icons.locker } })
         end
 
         if filetype ~= '' then
-          local new_hl = hl .. 'OnSL'
-          if not icon_hl_cache[new_hl] then
-            local colors = require 'onedark.colors'
-            vim.api.nvim_set_hl(0, new_hl, { fg = vim.api.nvim_get_hl(0, { name = hl }).fg, bg = colors.bg0 })
-            icon_hl_cache[new_hl] = true
-          end
+          local new_hl = vim.__icons.combine_hl(hl, 'MiniStatuslineCommand', 'OnSL')
           table.insert(groups, { hl = new_hl, strings = { ' ' .. icon } })
         end
         local filename = ' %t '
@@ -43,17 +37,18 @@ function M.setup()
           filename = ' %f '
         end
         if vim.o.modified then
-          filename = filename .. ' ' .. M.icons.circle
+          filename = filename .. ' ' .. vim.__icons.circle
         end
         table.insert(groups, { hl = 'MiniStatuslineFilename', strings = { filename } })
         table.insert(groups, '%=') -- End left alignment
 
         local components = require('noice').api.status
         local actual = vim
-          .iter({ 'search', 'mode', 'command' })
+          .iter({ 'mode', 'command' })
           :filter(function(component)
-            return components[component].has()
-              and (component ~= 'mode' or components[component].get():sub(0, 2) ~= '--')
+            ---@type NoiceStatus
+            local comp = components[component]
+            return comp.has() and (component ~= 'mode' or comp.get():sub(0, 2) ~= '--')
           end)
           :map(function(component)
             return '%#MiniStatusline' .. vim.__str.capitalize(component) .. '#' .. components[component].get()
@@ -69,7 +64,8 @@ function M.setup()
         end
 
         if filetype ~= '' then
-          table.insert(groups, { hl = hl, strings = { icon .. ' ' } })
+          local new_hl = vim.__icons.combine_hl(hl, 'MiniStatuslineFileinfo', 'OnSL2')
+          table.insert(groups, { hl = new_hl, strings = { icon .. ' ' } })
         end
         table.insert(groups, { hl = 'MiniStatuslineFileinfo', strings = { filetype } })
         table.insert(groups, { hl = 'MiniStatuslineSection1End', strings = { M.sep.right.close } })
@@ -83,20 +79,15 @@ function M.setup()
         local groups = {}
         if filetype ~= '' then
           local icon, hl = require('mini.icons').get('filetype', filetype)
-          local new_hl = hl .. 'OnSL'
-          if not icon_hl_cache[new_hl] then
-            local colors = require 'onedark.colors'
-            vim.api.nvim_set_hl(0, new_hl, { fg = vim.api.nvim_get_hl(0, { name = hl }).fg, bg = colors.bg0 })
-            icon_hl_cache[new_hl] = true
-          end
+          local new_hl = vim.__icons.combine_hl(hl, 'MiniStatuslineCommand', 'OnSL')
           table.insert(groups, { hl = new_hl, strings = { ' ' .. icon } })
         end
         if vim.bo.readonly then
-          table.insert(groups, { hl = 'MiniStatuslineReadonly', strings = { ' ', M.icons.locker } })
+          table.insert(groups, { hl = 'MiniStatuslineReadonly', strings = { ' ', vim.__icons.locker } })
         end
         local filename = ' %f '
         if vim.o.modified then
-          filename = filename .. M.icons.circle
+          filename = filename .. vim.__icons.circle
         end
         table.insert(groups, { hl = 'MiniStatuslineFilename', strings = { filename } })
 
@@ -107,10 +98,10 @@ function M.setup()
     set_vim_settings = true,
   }
 
-  _G.MiniStatusline.combine_groups = P.combine_groups
-  _G.MiniStatusline.section_lsp = M.lsp_section
-  _G.MiniStatusline.diagnostics_sections = M.insert_diag_sections
-  _G.MiniStatusline.separators = M.sep
+  MiniStatusline.combine_groups = P.combine_groups
+  MiniStatusline.section_lsp = M.lsp_section
+  MiniStatusline.diagnostics_sections = M.insert_diag_sections
+  MiniStatusline.separators = M.sep
 end
 function P.combine_groups(groups)
   local parts = vim.tbl_map(function(s)
@@ -170,12 +161,12 @@ P.git_status_icons = {
 }
 function M.diagnostics_section(severity, inactive)
   local count = vim.tbl_count(vim.diagnostic.get(0, { severity = severity }))
-  local icons_tbl = inactive and M.icons.symbols_outlined or M.icons.symbols
+  local icons_tbl = inactive and vim.__icons.symbols_outlined or vim.__icons.symbols
   return { hl = P.sev_to_hl[severity], strings = { icons_tbl[P.sev_to_icon[severity]] .. ' ' .. count .. ' ' } }
 end
 function P.git_section(groups, statusline)
   if vim.b.gitsigns_head ~= nil and not statusline.is_truncated(40) then
-    table.insert(groups, { hl = 'MiniStatuslineGitinfo', strings = { ' ', M.icons.branch, vim.b.gitsigns_head } })
+    table.insert(groups, { hl = 'MiniStatuslineGitinfo', strings = { ' ', vim.__icons.branch, vim.b.gitsigns_head } })
   end
   if vim.b.gitsigns_status_dict ~= nil then
     for diff in vim.iter { 'Added', 'Changed', 'Removed' } do
@@ -197,7 +188,7 @@ M.lsp_section = function()
   return {
     hl = 'MiniStatuslineLspinfo',
     strings = {
-      M.icons.lsp .. ' ' .. vim
+      vim.__icons.lsp .. ' ' .. vim
         .iter(attached_lsps)
         :map(function(lsp)
           return lsp.name
@@ -211,53 +202,10 @@ M.section_filename = function(args)
   if vim.bo.buftype == 'terminal' then
     return '%t'
   end
-  local modified = vim.bo.modified and ' ' .. M.icons.circle or ''
+  local modified = vim.bo.modified and ' ' .. vim.__icons.circle or ''
   local filename = MiniStatusline.is_truncated(args.trunc_width) and '%f' or '%F'
   return filename .. modified
 end
-M.icons = {
-  lsp = '',
-  locker = '', -- #f023
-  page = '☰', -- 2630
-  line_number = '', -- e0a1
-  connected = '', -- f817
-  dos = '', -- e70f
-  unix = '', -- f17c
-  mac = '', -- f179
-  vertical_bar = '┃',
-  vertical_bar_thin = '│',
-  left = '',
-  right = '',
-  block = '█',
-  left_filled = '',
-  right_filled = '',
-  slant_left = '',
-  slant_left_thin = '',
-  slant_right = '',
-  slant_right_thin = '',
-  slant_left_2 = '',
-  slant_left_2_thin = '',
-  slant_right_2 = '',
-  slant_right_2_thin = '',
-  left_rounded = '',
-  left_rounded_thin = '',
-  right_rounded = '',
-  right_rounded_thin = '',
-  circle = '●',
-  branch = '',
-  symbols = {
-    error = '',
-    warn = '',
-    info = '',
-    hint = '󰌵',
-  },
-  symbols_outlined = {
-    error = '󰅚',
-    warn = '󰀪',
-    info = '󰋽',
-    hint = '󰌶',
-  },
-}
 M.sep = {
   left = {
     start = ' ',

@@ -1,6 +1,14 @@
 return {
   'nvim-treesitter/nvim-treesitter',
-  dependencies = { 'nvim-treesitter/nvim-treesitter-context' },
+  dependencies = {
+    'nvim-treesitter/nvim-treesitter-context',
+    {
+      'nvim-treesitter/nvim-treesitter-textobjects',
+      init = function()
+        vim.g.no_plugin_maps = true
+      end,
+    },
+  },
   lazy = false,
   build = ':TSUpdate',
   opts = {
@@ -26,6 +34,7 @@ return {
       'vue',
       'css',
       'scss',
+      'styled',
     },
     sync_install = false,
     auto_install = true,
