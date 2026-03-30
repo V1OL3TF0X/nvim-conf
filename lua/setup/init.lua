@@ -15,6 +15,9 @@ vim.opt.rtp:prepend(lazypath)
 require 'setup.set'
 require 'setup.utils'
 require('lazy').setup('setup.plugins', {
+  dev = {
+    path = '~/sandbox',
+  },
   change_detection = {
     enabled = true,
     notify = false,
