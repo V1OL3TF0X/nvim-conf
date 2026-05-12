@@ -1,46 +1,76 @@
 local slow_format_filetypes = {}
+local cached_formatter_per_packages_path = {}
+local cached_formatter_per_bufnr = {}
+local function cache_formatter(formatter, bufnr, path)
+  local fmt = { formatter }
+  cached_formatter_per_bufnr[bufnr] = fmt
+  cached_formatter_per_packages_path[path] = fmt
+  return fmt
+end
 vim.api.nvim_create_user_command('FormatDisable', function(args)
   if args.bang then
     -- FormatDisable! will disable formatting just for this buffer
-    vim.b.disable_autoformat = true
-  else
     vim.g.disable_autoformat = true
+  else
+    vim.b.disable_autoformat = true
   end
 end, {
   desc = 'Disable autoformat-on-save',
   bang = true,
 })
-vim.api.nvim_create_user_command('FormatEnable', function()
-  vim.b.disable_autoformat = false
-  vim.g.disable_autoformat = false
+vim.api.nvim_create_user_command('FormatEnable', function(args)
+  if args.bang then
+    vim.g.disable_autoformat = false
+  else
+    vim.b.disable_autoformat = false
+  end
 end, {
   desc = 'Re-enable autoformat-on-save',
+  bang = true,
 })
-local js_like_formatters = { 'prettier', stop_after_first = true }
-local function use_local_and_global_config(roots, name)
-  require('conform.formatters.' .. name).args = function(self, ctx)
-    local args = { '--stdin-filepath', '$FILENAME' }
-
-    local localConfig = vim.fs.find(roots, {
-      upward = true,
-      path = ctx.dirname,
-      type = 'file',
-    })[1]
-    local globalConfig = vim.fs.find(roots, {
-      path = vim.fn.stdpath 'config',
-      type = 'file',
-    })[1]
-    local disableGlobalConfig = os.getenv('DISABLE_GLOBAL_' .. string.upper(name) .. '_CONFIG')
-
-    -- Project config takes precedence over global config
-    if localConfig then
-      vim.list_extend(args, { '--config', localConfig })
-    elseif globalConfig and not disableGlobalConfig then
-      vim.list_extend(args, { '--config', globalConfig })
-    end
-
-    return args
+vim.api.nvim_create_user_command('NukeFormatterCache', function()
+  cached_formatter_per_bufnr = {}
+  cached_formatter_per_packages_path = {}
+end, { desc = 'Reset cached formatters by bufnr / path' })
+local js_like_formatters = function(bufnr)
+  if cached_formatter_per_bufnr[bufnr] ~= nil then
+    return cached_formatter_per_bufnr[bufnr]
   end
+  local package_json = vim.fs.find('package.json', { type = 'file' })
+  if #package_json == 0 then
+    package_json = vim.fs.find('package.json', { upward = true, type = 'file' })
+  end
+  if #package_json == 0 then
+    cached_formatter_per_bufnr[bufnr] = 'prettier'
+    return { 'prettier' }
+  end
+  local path = package_json[1]
+  if cached_formatter_per_packages_path[path] ~= nil then
+    return cached_formatter_per_packages_path[path]
+  end
+  local res = vim.system({
+    'jq',
+    '.dependencies + .devDependencies | keys | map(select(. == "prettier" or . == "biome" or . == "oxfmt" or . == "vite-plus"))',
+    path,
+  }, { text = true })
+  if res.code ~= 0 then
+    return cache_formatter('prettier', bufnr, path)
+  end
+  local ok, packages_tbl = pcall(vim.json.decode, res.stdout)
+  if not ok then
+    return cache_formatter('prettier', bufnr, path)
+  end
+
+  if vim.tbl_contains(packages_tbl, 'vite-plus') then
+    return cache_formatter('vite-plus', bufnr, path)
+  end
+  if vim.tbl_contains(packages_tbl, 'oxfmt') then
+    return cache_formatter('oxfmt', bufnr, path)
+  end
+  if vim.tbl_contains(packages_tbl, 'biome') then
+    return cache_formatter('biome', bufnr, path)
+  end
+  return cache_formatter('prettier', bufnr, path)
 end
 return {
   'stevearc/conform.nvim',
@@ -107,13 +137,4 @@ return {
       return { lsp_fallback = true }
     end,
   },
-  config = function(_, opts)
-    require('conform').setup(opts)
-    -- Customize prettier args
-    use_local_and_global_config(
-      { '.prettierrc', '.prettierrc.json', 'prettier.config.js', '.prettierrc.toml' },
-      'prettier'
-    )
-    use_local_and_global_config({ 'biome.json', 'biome.jsonc' }, 'biome')
-  end,
 }

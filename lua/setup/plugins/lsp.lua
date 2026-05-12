@@ -102,6 +102,14 @@ return {
           return
         end
 
+        if client.name == 'oxlint' then
+          -- Define a command to organize imports
+          vim.api.nvim_create_autocmd('BufWritePre', {
+            buffer = evt.buf,
+            command = 'LspOxlintFixAll',
+          })
+          return
+        end
         if client.name == 'eslint' then
           -- Define a command to organize imports
           vim.api.nvim_create_autocmd('BufWritePre', {

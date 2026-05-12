@@ -7,7 +7,6 @@ end
 return {
   'Juksuu/worktrees.nvim',
   dependencies = { 'plenary.nvim' },
-  dev = true,
   opts = {
     switch_file_command = 'Oil',
     swap_current_buffer = false,
