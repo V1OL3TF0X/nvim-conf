@@ -106,7 +106,11 @@ return {
           -- Define a command to organize imports
           vim.api.nvim_create_autocmd('BufWritePre', {
             buffer = evt.buf,
-            command = 'LspOxlintFixAll',
+            callback = function()
+              if vim.g.autofix_enable then
+                vim.cmd.OxlintFixAll()
+              end
+            end,
           })
           return
         end
@@ -114,12 +118,42 @@ return {
           -- Define a command to organize imports
           vim.api.nvim_create_autocmd('BufWritePre', {
             buffer = evt.buf,
-            command = 'LspEslintFixAll',
+            callback = function()
+              if vim.g.autofix_enable then
+                vim.cmd.EslintFixAll()
+              end
+            end,
           })
         end
       end,
     })
+    vim.api.nvim_create_user_command('AutoFix', function(args)
+      if not args.fargs[1] then
+        vim.g.autofix_enable = not vim.g.autofix_enable
+        return
+      end
+      vim.g.autofix_enable = args.fargs[1] == 'enable'
+    end, {
+      desc = 'Toggle autofix of oxlint / eslint / biome',
+      nargs = '?',
+      complete = function(arg_lead, cmd_line)
+        local arguments = vim.split(cmd_line, ' ', { trimempty = true })
+        local number_of_arguments = #arguments
 
+        if number_of_arguments > 3 then
+          return {}
+        end
+        return vim
+          .iter({ 'enable', 'disable' })
+          :filter(
+            ---@param name string
+            function(name)
+              return vim.startswith(name, arg_lead)
+            end
+          )
+          :totable()
+      end,
+    })
     require('mason').setup {}
     require('mason-tool-installer').setup {
       ensure_installed = {
