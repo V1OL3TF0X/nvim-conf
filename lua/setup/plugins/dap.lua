@@ -33,12 +33,27 @@ return {
       command = 'node',
       args = { mason_path .. '/chrome-debug-adapter/out/src/chromeDebug.js' },
     }
-    for language in vim.iter { 'typescriptreact', 'javascriptreact' } do
-      dap.configurations[language] = { chrome_config }
-    end
+    -- actually make this work someday
+    -- local chrome_config = {
+    --   name = 'Chrome adapter',
+    --   type = 'chrome',
+    --   request = 'attach',
+    --   skipFiles = { '**/node_modules/**' },
+    --   cwd = vim.fs.find(
+    --     { 'package.json', 'tsconfig.json', 'jsconfig.json' },
+    --     { type = 'directory', upward = true, cwd = vim.fn.getcwd() }
+    --   ),
+    --   sourceMaps = true,
+    --   protocol = 'inspector',
+    --   port = 9222,
+    --   webRoot = '${workspaceFolder}',
+    -- }
+    -- for language in vim.iter { 'typescriptreact', 'javascriptreact' } do
+    --   dap.configurations[language] = { chrome_config }
+    -- end
     for language in vim.iter { 'typescript', 'javascript' } do
       dap.configurations[language] = {
-        chrome_config,
+        -- chrome_config,
         {
           type = 'pwa-node',
           request = 'launch',

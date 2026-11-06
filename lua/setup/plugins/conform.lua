@@ -102,7 +102,6 @@ return {
       html = js_like_formatters,
       php = js_like_formatters,
       djangohtml = js_like_formatters,
-      java = { 'jdtls' },
       lua = { 'stylua' },
       yaml = { 'yamlfix' },
     },
